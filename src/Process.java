@@ -5,17 +5,16 @@ public class Process {
 		public State processState = State.NEW;
 		public String name;
 		
+		public int calculateTimeRemaining;
 		public int programCounter;
 		public int priority;
 		public int processMemory;
 		public int iOTimeRemaining;
+		public int arrivalTime;
 		
 		public ArrayList<String> processCommands;
-		
-		public boolean blockedStatus;
-		
-		
 
+		
 		public Process(State processState, String name, int programCounter, int priority, int processMemory,
 				int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus) {
 			super();
@@ -26,7 +25,7 @@ public class Process {
 			this.processMemory = processMemory;
 			this.iOTimeRemaining = iOTimeRemaining;
 			this.processCommands = processCommands;
-			this.blockedStatus = blockedStatus;
+			
 		}
 
 		public State getProcessState() {
@@ -77,14 +76,6 @@ public class Process {
 			this.processCommands = processCommands;
 		}
 
-		public boolean isBlockedStatus() {
-			return blockedStatus;
-		}
-
-		public void setBlockedStatus(boolean blockedStatus) {
-			this.blockedStatus = blockedStatus;
-		}
-		
 		public int getIOTimeRemaining(){
 			return iOTimeRemaining;
 		}
@@ -96,6 +87,40 @@ public class Process {
 		public void derimentIOTimeReamaining(){
 			iOTimeRemaining--;
 		}
+
+		public int getArrivalTime() {
+			return arrivalTime;
+		}
+
+		public void setArrivalTime(int arrivalTime) {
+			this.arrivalTime = arrivalTime;
+		}
+
+		@Override
+		public String toString() {
+			return "State: " + processState + ", Name: " + name + ", PC: " + programCounter
+					+ ", PR: " + priority + ", MEM: " + processMemory + ", IOTR: "
+					+ iOTimeRemaining + ", AT: " + arrivalTime 
+					+ "]";
+		}
+
+		public int getCalculateTimeRemaining() {
+			return calculateTimeRemaining;
+		}
+
+		public void setCalculateTimeRemaining(int calculateTimeRemaining) {
+			this.calculateTimeRemaining = calculateTimeRemaining;
+		}
+
+		public int getiOTimeRemaining() {
+			return iOTimeRemaining;
+		}
+
+		public void setiOTimeRemaining(int iOTimeRemaining) {
+			this.iOTimeRemaining = iOTimeRemaining;
+		}
+		
+		
 		
 		
 		
