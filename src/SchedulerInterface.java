@@ -2,6 +2,10 @@ import java.util.ArrayList;
 
 public interface SchedulerInterface {
 	/*
+	 * Return the type of scheduler (As a String)
+	 */
+	String getType();
+	/*
 	 * Method to dequeue the readyQueue
 	 */
 	Process getReadyProcess();
@@ -28,6 +32,10 @@ public interface SchedulerInterface {
 	 */
 	int getMemoryUsed();
 	
+	/*
+	 * A method to update the waiting queue
+	 */
+	ArrayList<Process> updateWaitingProcesses();
 	
 	/*
 	 * Methods to return the queues

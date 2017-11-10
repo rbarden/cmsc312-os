@@ -11,6 +11,7 @@ public class Process {
 		public int processMemory;
 		public int iOTimeRemaining;
 		public int arrivalTime;
+		public boolean hasEnteredCPU = false;
 		
 		public ArrayList<String> processCommands;
 
@@ -118,6 +119,14 @@ public class Process {
 
 		public void setiOTimeRemaining(int iOTimeRemaining) {
 			this.iOTimeRemaining = iOTimeRemaining;
+		}
+
+		public boolean hasEnteredCPU() {
+			return hasEnteredCPU;
+		}
+
+		public void setHasEnteredCPU(boolean hasEnteredCPU) {
+			this.hasEnteredCPU = hasEnteredCPU;
 		}
 		
 		

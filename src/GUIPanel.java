@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.JComboBox;
 
 public class GUIPanel extends JPanel {
 	/**
@@ -96,7 +97,12 @@ public class GUIPanel extends JPanel {
 	 * If this is true, the clock should be reset to zero.
 	 */
 	private boolean reset = false;
-
+	
+	/*
+	 * The clock value
+	 */
+	
+	private Clock clock;
 	/*
 	 * The string from the command line
 	 */
@@ -115,16 +121,25 @@ public class GUIPanel extends JPanel {
 
 	private ArrayList<Process> newProcesses = new ArrayList<>();
 	
+	/*
+	 * The drop down menu to select a scheduler from.
+	 */
+	private JComboBox<String> schedulerSelecterCB;
 	
+	/*
+	 * The scheduler chosen from the drop down menu
+	 */
+	public SchedulerInterface schedulerIF = null;
 	
 
 	/*
 	 * The GUIPanel Constructor
 	 */
-	public GUIPanel() {
+	public GUIPanel(Clock c) {
 		setLayout(null);
 		setup();
 		setVisible(true);
+		clock = c;
 	}
 
 	/*
@@ -173,6 +188,7 @@ public class GUIPanel extends JPanel {
 
 		btnStart = new JButton("Start");
 		btnStart.setBounds(282, 338, 128, 29);
+		btnStart.setEnabled(false);
 		add(btnStart);
 
 		btnStop = new JButton("Stop");
@@ -254,7 +270,43 @@ public class GUIPanel extends JPanel {
 		operationLabel = new JLabel("");
 		operationLabel.setBounds(631, 365, 123, 16);
 		add(operationLabel);
+		
+		/*
+		 * Values for the drop down combo box for the scheduler. 
+		 */
+		String[] dropDownSchedulers = {"Select a scheduler: ", "Round Robin", "FCFS"};
+		
+		/*
+		 * Instantiating the drop down combo box for the schedulers
+		 */
+		schedulerSelecterCB = new JComboBox<String>(dropDownSchedulers);
+		schedulerSelecterCB.setBounds(296, 12, 209, 27);
+		add(schedulerSelecterCB);
 
+		/*
+		 * The action listener for the drop down scheduler menu.
+		 */
+		schedulerSelecterCB.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String sched = schedulerSelecterCB.getSelectedItem().toString();
+				if (sched.equals("Round Robin")){
+					schedulerIF = new RoundRobin(25, clock);
+					btnStart.setEnabled(true);
+				}
+				else if (sched.equals("FCFS")){
+					schedulerIF = new FCFS(clock);
+					btnStart.setEnabled(true);
+				}
+				
+			}
+			
+		});
+		
+
+		
 		/*
 		 * Table Headers
 		 */
@@ -313,6 +365,8 @@ public class GUIPanel extends JPanel {
 		finishedScrollPane = new JScrollPane(finishedQueueTable);
 		finishedScrollPane.setBounds(542, 69, 248, 262);
 		add(finishedScrollPane);
+		
+		
 
 		
 
@@ -604,5 +658,25 @@ public class GUIPanel extends JPanel {
 	public void setOperationLabel(JLabel operationLabel) {
 		this.operationLabel = operationLabel;
 	}
+
+	public SchedulerInterface getSchedulerIF() {
+		return schedulerIF;
+	}
+
+	public void setSchedulerIF(SchedulerInterface schedulerIF) {
+		this.schedulerIF = schedulerIF;
+	}
+	
+	public SchedulerInterface resetSchedulerIF(){
+		SchedulerInterface si = null;
+		if (schedulerSelecterCB.getSelectedItem().toString().equals("Round Robin")){
+			si = new RoundRobin(25,clock);
+		}
+		else if (schedulerSelecterCB.getSelectedItem().toString().equals("FCFS")){
+			si = new FCFS(clock);
+		}
+		return si;
+	}
+	
 	
 }

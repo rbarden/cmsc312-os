@@ -8,7 +8,7 @@ import javax.swing.SwingUtilities;
 public class OperatingSystemRunner extends JFrame {
 
 	public static ArrayList<Process> finishedQueue = new ArrayList<Process>();
-	public static final int timeQuantum = 25;
+	public static int timeQuantum = 25;
 
 	public static GUIPanel pan;
 	public static Memory memory;
@@ -20,12 +20,12 @@ public class OperatingSystemRunner extends JFrame {
 
 	public static void main(String[] args) {
 		clock = new Clock();
-		pan = new GUIPanel();
+		pan = new GUIPanel(clock);
 		memory = new Memory();
-		scheduler = new RoundRobin(timeQuantum, clock);
+		scheduler = null;
 		cpu = new CPU();
-
 		new OperatingSystemRunner(pan);
+
 		int executionSpeedSliderVal;
 
 		/*
@@ -50,7 +50,6 @@ public class OperatingSystemRunner extends JFrame {
 			}
 
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -74,8 +73,22 @@ public class OperatingSystemRunner extends JFrame {
 	 */
 	public static void execute() throws InterruptedException {
 
-		cpu.setContinueCurrentExecution(true);
+		/*
+		 * Initial scheduler setup
+		 */
+		if (scheduler == null) {
+			scheduler = pan.getSchedulerIF();
+			if (scheduler.getType().equals("FCFS")) {
+				timeQuantum = 1;
+			} else if (scheduler.getType().equals("Round Robin")) {
+				timeQuantum = 25;
+			}
+		}
 
+		/*
+		 * Allow for continuous running
+		 */
+		cpu.setContinueCurrentExecution(true);
 		clock.incrementClock();
 		pan.setClockLbl(String.format("%06d", clock.getClock()));
 
@@ -86,7 +99,7 @@ public class OperatingSystemRunner extends JFrame {
 			pan.setClockLbl("000000");
 			pan.setIsSteadyRun(false);
 			clock.setClock(0);
-			scheduler = new RoundRobin(timeQuantum, clock);
+			scheduler = pan.resetSchedulerIF();
 			pan.setReset(false);
 
 		}
@@ -127,21 +140,20 @@ public class OperatingSystemRunner extends JFrame {
 		int currentTimeQuantum = timeQuantum;
 		if (!scheduler.getReadyQueue().isEmpty()) {
 			Process p = scheduler.getReadyProcess();
-			pan.getLblCurrentProcessName().setText(p.getName());
-			while (currentTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
-				cpu.run(p);
-				currentTimeQuantum--;
-				clock.incrementClock();
-				pan.setClockLbl(String.format("%06d", clock.getClock()));
-				pan.getOperationLabel().setText(cpu.getProcessOperation());
-				Thread.sleep(1000 / pan.getSliderValue());
+			System.out.println(p.getName());
+			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()){
+				executeCPU(currentTimeQuantum, p);
+			}else if(scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()){
+				
+			}else
+			{
+				executeCPU(currentTimeQuantum, p);
 			}
-			if (!cpu.getOutput().isEmpty()) {
-				pan.setConsole(
-						"Output: " + cpu.getOutput() + " on clock cycle " + clock.getClock());
+				
+			if (!scheduler.getType().equals("FCFS")) {
+				pan.getLblCurrentProcessName().setText("");
+				pan.getOperationLabel().setText("");
 			}
-			pan.getLblCurrentProcessName().setText("");
-			pan.getOperationLabel().setText("");
 			scheduler.schedule(p);
 
 		}
@@ -183,6 +195,29 @@ public class OperatingSystemRunner extends JFrame {
 			}
 		});
 	}
+	
+	public static void executeCPU(int ctq, Process p) throws InterruptedException{
+		pan.getLblCurrentProcessName().setText(p.getName());
+		while (ctq > 0 && cpu.isContinueCurrentExecution()) {
+			cpu.run(p);
+			ctq--;
+			pan.getOperationLabel().setText(cpu.getProcessOperation());
+			if (ctq > 0) {
+				clock.incrementClock();
+				pan.setClockLbl(String.format("%06d", clock.getClock()));
+				Thread.sleep(1000 / pan.getSliderValue());
+				
+				ArrayList<Process> proc = scheduler.updateWaitingProcesses();
+				
+				updatePanelTables();
+			}
+			
+		}
+		if (!cpu.getOutput().isEmpty()) {
+			pan.setConsole("Output: " + cpu.getOutput() + " on clock cycle " + clock.getClock());
+			cpu.setOutput("");
+		}
+	}
 
 	/*
 	 * This method is getting the input from the JPanel command line input, and
@@ -216,7 +251,10 @@ public class OperatingSystemRunner extends JFrame {
 				pan.setClockLbl("000000");
 				pan.setIsSteadyRun(false);
 				clock.setClock(0);
-				scheduler = new RoundRobin(timeQuantum, clock);
+				scheduler = pan.resetSchedulerIF();
+				finishedQueue.clear();
+				updatePanelTables();
+				pan.setConsole("");
 				break;
 			case "exit":
 				System.exit(0);

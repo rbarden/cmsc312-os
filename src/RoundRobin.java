@@ -12,7 +12,7 @@ public class RoundRobin implements SchedulerInterface {
 	private int totalMemoryAvailable = 4096;
 	private final int TIME_QUANTUM;
 	private int timeQuantumRemaining;
-	
+	private final String type = "Round Robin";
 	
 	Clock clock;
 
@@ -82,7 +82,6 @@ public class RoundRobin implements SchedulerInterface {
 		if (p.getProcessState() == State.READY) {
 			enqueueReadyQueue(p);
 		} else if (p.getProcessState() == State.WAIT) {
-			
 			enqueueWaitingQueue(p);
 		} else if (p.getProcessState() == State.EXIT) {
 			readyQueue.add(p);
@@ -127,18 +126,7 @@ public class RoundRobin implements SchedulerInterface {
 		 * and their IO values are decremented and if they equal 0, the
 		 * process is moved back to the ready queue. 
 		 */
-		ArrayList<Process> toRemove = new ArrayList<>();
-		for (int i = 0; i < waitingQueue.size(); i++) {
-			if (waitingQueue.get(i).getIOTimeRemaining() == 0) {
-				waitingQueue.get(i).setProcessState(State.READY);
-				enqueueReadyQueue(waitingQueue.get(i));
-				toRemove.add(waitingQueue.get(i));
-			} else {
-				waitingQueue.get(i).setProcessState(State.WAIT);
-				waitingQueue.get(i).derimentIOTimeReamaining();
-			}
-		}
-		waitingQueue.removeAll(toRemove);
+		updateWaitingProcesses();
 
 		/*
 		 * If the waiting queue is not empty and the ready queue has room for
@@ -154,6 +142,28 @@ public class RoundRobin implements SchedulerInterface {
 			}
 		}
 		return terminated;
+	}
+	
+	
+	/*
+	 * If processes are in the waiting queue, they must be evaluated
+	 * and their IO values are decremented and if they equal 0, the
+	 * process is moved back to the ready queue. 
+	 */
+	public ArrayList<Process> updateWaitingProcesses(){
+		ArrayList<Process> toRemove = new ArrayList<>();
+		for (int i = 0; i < waitingQueue.size(); i++) {
+			if (waitingQueue.get(i).getIOTimeRemaining() == 0) {
+				waitingQueue.get(i).setProcessState(State.READY);
+				enqueueReadyQueue(waitingQueue.get(i));
+				toRemove.add(waitingQueue.get(i));
+			} else {
+				waitingQueue.get(i).setProcessState(State.WAIT);
+				waitingQueue.get(i).derimentIOTimeReamaining();
+			}
+		}
+		waitingQueue.removeAll(toRemove);
+		return toRemove;
 	}
 	
 	
@@ -211,6 +221,10 @@ public class RoundRobin implements SchedulerInterface {
 
 	public void setTotalMemoryAvailable(int totalMemoryAvailable) {
 		this.totalMemoryAvailable = totalMemoryAvailable;
+	}
+	
+	public String getType(){
+		return type;
 	}
 
 }
