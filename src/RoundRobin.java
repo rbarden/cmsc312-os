@@ -119,6 +119,7 @@ public class RoundRobin implements SchedulerInterface {
 
 			}
 		}
+		
 		readyQueue.removeAll(toRemoveTerm);
 
 		/*

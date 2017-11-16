@@ -129,11 +129,4 @@ public class Process {
 			this.hasEnteredCPU = hasEnteredCPU;
 		}
 		
-		
-		
-		
-		
-		
-
-
 }

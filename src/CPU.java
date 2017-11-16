@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class CPU {
@@ -10,7 +11,7 @@ public class CPU {
 	private String processOperation;
 	private String output = "";
 
-	
+	private ArrayList<Process> newChildren = new ArrayList<>();
 
 
 	/*
@@ -20,7 +21,7 @@ public class CPU {
 	public void run(Process p) {
 		process = p;
 		process.setProcessState(State.RUN);
-		String pComm = process.getProcessCommands().get(0);
+		String pComm = process.getProcessCommands().get(process.getProgramCounter());
 		if (pComm.contains(",")) {
 			String splitComm[] = pComm.split(",");
 			processOperation = splitComm[0] + " " + splitComm[1];
@@ -28,42 +29,45 @@ public class CPU {
 				int calcTimeRemaining = Integer.parseInt(splitComm[1]);
 				if (calcTimeRemaining == 0) {
 					continueCurrentExecution = false;
-					process.getProcessCommands().remove(0);
 					process.setProcessState(State.READY);
 					process.setProgramCounter(process.getProgramCounter() + 1);
 				} else {
-					process.getProcessCommands().set(0, "calculate," + String.valueOf(calcTimeRemaining - 1));
+					process.getProcessCommands().set(process.getProgramCounter(), "calculate," + String.valueOf(calcTimeRemaining - 1));
 					process.setProcessState(State.READY);
-					process.setProgramCounter(process.getProgramCounter() + 1);
 				}
 			} else if (splitComm[0].equals("exe")) {
 				continueCurrentExecution = false;
-				process.getProcessCommands().remove(0);
 				process.setProcessState(State.EXIT);
 				process.setProgramCounter(process.getProgramCounter() + 1);
 			} else if (splitComm[0].equals("out")) {
+				continueCurrentExecution = false;
 				output = splitComm[1] + " " + splitComm[2] + " " + splitComm[3] + " " + splitComm[4];
-				process.getProcessCommands().remove(0);
 				System.out.println(splitComm[1]);
 				process.setProcessState(State.READY);
 				process.setProgramCounter(process.getProgramCounter() + 1);
-			}
+			} 
 
 		} else if (pComm.equals("io")) {
 			processOperation = pComm;
 			continueCurrentExecution = false;
 			process.setIOTimeReamaining(ThreadLocalRandom.current().nextInt(25, 50 + 1));
-			process.getProcessCommands().remove(0);
 			process.setProcessState(State.WAIT);
 			process.setProgramCounter(process.getProgramCounter() + 1);
 		} else if (pComm.equals("yield")) {
 			processOperation = pComm;
-			continueCurrentExecution = false;
-			process.getProcessCommands().remove(0);
+			continueCurrentExecution = false; 
 			process.setProcessState(State.READY);
 			process.setProgramCounter(process.getProgramCounter() + 1);
 		}
 
+	}
+
+	public ArrayList<Process> getNewChildren() {
+		return newChildren;
+	}
+
+	public void setNewChildren(ArrayList<Process> newChildren) {
+		this.newChildren = newChildren;
 	}
 
 	/*

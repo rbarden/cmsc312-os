@@ -11,7 +11,9 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.InputMismatchException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -231,8 +233,8 @@ public class GUIPanel extends JPanel {
 		lblMemoryAvailable.setBounds(613, 16, 151, 16);
 		add(lblMemoryAvailable);
 
-		lblInputQueue = new JLabel("Input Queue:");
-		lblInputQueue.setBounds(20, 44, 81, 16);
+		lblInputQueue = new JLabel("Ready Queue:");
+		lblInputQueue.setBounds(20, 44, 100, 16);
 		add(lblInputQueue);
 
 		lblWaitingQueue = new JLabel("Waiting Queue:");
@@ -279,7 +281,10 @@ public class GUIPanel extends JPanel {
 		/*
 		 * Instantiating the drop down combo box for the schedulers
 		 */
-		schedulerSelecterCB = new JComboBox<String>(dropDownSchedulers);
+		schedulerSelecterCB = new JComboBox<String>();
+		schedulerSelecterCB.addItem(dropDownSchedulers[0]);
+		schedulerSelecterCB.addItem(dropDownSchedulers[1]);
+		schedulerSelecterCB.addItem(dropDownSchedulers[2]);
 		schedulerSelecterCB.setBounds(296, 12, 209, 27);
 		add(schedulerSelecterCB);
 
@@ -453,7 +458,13 @@ public class GUIPanel extends JPanel {
 					try {
 						int num = Integer.parseInt(str);
 						for (int i = 0; i < num; i++) {
-							Process process = GenerateRandomProcess.generate(String.valueOf(i + 1));
+							
+							long currentTime = System.currentTimeMillis();
+							Date date = new Date(currentTime); // if you really have long
+							String result = new SimpleDateFormat("ssSSS").format(date.getTime());
+							
+							
+							Process process = GenerateRandomProcess.generate("p" + result);
 							newProcesses.add(process);
 						}
 					} catch (FileNotFoundException e1) {
@@ -568,6 +579,29 @@ public class GUIPanel extends JPanel {
 	}
 
 	/*
+	 * 
+	 */
+	public void updateQueueTable(ArrayList<Process> pArr, DefaultTableModel dtm, JTable table) {
+		String[] headers = { "Process: ", "State", "Arrival: " };
+		String[][] data = new String[50][3];
+		for (int i = 0; i < 50; i++) {
+
+			if (i < pArr.size()) {
+				data[i][0] = pArr.get(i).getName();
+				data[i][1] = pArr.get(i).getProcessState().toString();
+				data[i][2] = String.valueOf(pArr.get(i).getArrivalTime());
+			} else {
+				data[i][0] = "-";
+				data[i][1] = "-";
+				data[i][2] = "-";
+			}
+
+		}
+		dtm = new DefaultTableModel(data, headers);
+		table.setModel(dtm);
+	}
+	
+	/*
 	 * Getters and setters for the GUI variables.
 	 */
 
@@ -677,6 +711,55 @@ public class GUIPanel extends JPanel {
 		}
 		return si;
 	}
+
+	public JTable getReadyQueueTable() {
+		return readyQueueTable;
+	}
+
+	public void setReadyQueueTable(JTable readyQueueTable) {
+		this.readyQueueTable = readyQueueTable;
+	}
+
+	public JTable getWaitingQueueTable() {
+		return waitingQueueTable;
+	}
+
+	public void setWaitingQueueTable(JTable waitingQueueTable) {
+		this.waitingQueueTable = waitingQueueTable;
+	}
+
+	public JTable getFinishedQueueTable() {
+		return finishedQueueTable;
+	}
+
+	public void setFinishedQueueTable(JTable finishedQueueTable) {
+		this.finishedQueueTable = finishedQueueTable;
+	}
+
+	public DefaultTableModel getdTMInputQueue() {
+		return dTMInputQueue;
+	}
+
+	public void setdTMInputQueue(DefaultTableModel dTMInputQueue) {
+		this.dTMInputQueue = dTMInputQueue;
+	}
+
+	public DefaultTableModel getdTMWaitingQueue() {
+		return dTMWaitingQueue;
+	}
+
+	public void setdTMWaitingQueue(DefaultTableModel dTMWaitingQueue) {
+		this.dTMWaitingQueue = dTMWaitingQueue;
+	}
+
+	public DefaultTableModel getdTMFinishedQueue() {
+		return dTMFinishedQueue;
+	}
+
+	public void setdTMFinishedQueue(DefaultTableModel dTMFinishedQueue) {
+		this.dTMFinishedQueue = dTMFinishedQueue;
+	}
+	
 	
 	
 }

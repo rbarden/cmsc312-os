@@ -124,6 +124,8 @@ public class OperatingSystemRunner extends JFrame {
 			}
 			pan.emptyNewProcessArray();
 		}
+		
+		
 
 		updatePanelTables();
 
@@ -157,6 +159,16 @@ public class OperatingSystemRunner extends JFrame {
 			scheduler.schedule(p);
 
 		}
+		
+		if (!cpu.getNewChildren().isEmpty()){
+			for (Process p : cpu.getNewChildren()) {
+				p.setProcessState(State.NEW);
+				scheduler.addNewProcess(p);
+				scheduler.schedule(p);
+				memory.setMemoryUsed(scheduler.getMemoryUsed());
+			}
+			cpu.getNewChildren().clear();
+		}
 
 		/*
 		 * If any process was selected for removal, it is returned by the
@@ -189,26 +201,30 @@ public class OperatingSystemRunner extends JFrame {
 	public static void updatePanelTables() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				pan.updateReadyQueueTable(scheduler.getReadyQueue());
-				pan.updateWaitingQueueTable(scheduler.getWaitingQueue());
-				pan.updateFinishedQueueTable(finishedQueue);
+				pan.updateQueueTable(scheduler.getReadyQueue(), pan.getdTMInputQueue(), pan.getReadyQueueTable());
+				pan.updateQueueTable(scheduler.getWaitingQueue(), pan.getdTMWaitingQueue(), pan.getWaitingQueueTable());
+				pan.updateQueueTable(finishedQueue, pan.getdTMFinishedQueue(), pan.getFinishedQueueTable());
 			}
 		});
 	}
 	
+	/*
+	 * This is the execute method to death with processes moving through the CPU
+	 * The inner if condition exists so that processes run for time quantum while
+	 * incrementing the clock in Round Robin. This statement is skipped when the FCFS
+	 * scheduler is being used. 
+	 */
 	public static void executeCPU(int ctq, Process p) throws InterruptedException{
 		pan.getLblCurrentProcessName().setText(p.getName());
 		while (ctq > 0 && cpu.isContinueCurrentExecution()) {
 			cpu.run(p);
 			ctq--;
 			pan.getOperationLabel().setText(cpu.getProcessOperation());
-			if (ctq > 0) {
+			if (ctq > 0 && cpu.isContinueCurrentExecution()) {
 				clock.incrementClock();
 				pan.setClockLbl(String.format("%06d", clock.getClock()));
 				Thread.sleep(1000 / pan.getSliderValue());
-				
-				ArrayList<Process> proc = scheduler.updateWaitingProcesses();
-				
+				scheduler.updateWaitingProcesses();	
 				updatePanelTables();
 			}
 			
@@ -227,7 +243,6 @@ public class OperatingSystemRunner extends JFrame {
 		String rtnString = "";
 		if (s.contains(",")) {
 			String[] splitStr = s.split(",");
-			System.out.println(splitStr[1]);
 			rtnString = splitStr[1].trim();
 			try {
 				Process p = FileReader.createProcess(rtnString);
