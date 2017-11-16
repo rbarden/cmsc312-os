@@ -1,4 +1,4 @@
-package MemoryManagement;
+package memory;
 
 public interface MemoryManager {
     boolean allocate();

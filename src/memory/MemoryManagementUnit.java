@@ -1,4 +1,4 @@
-package MemoryManagement;
+package memory;
 
 public class MemoryManagementUnit implements MemoryManager {
 

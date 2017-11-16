@@ -1,3 +1,9 @@
+import hardware.Clock;
+import process.Process;
+import scheduling.FCFS;
+import scheduling.RoundRobin;
+import scheduling.Scheduler;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -131,7 +137,7 @@ public class GUIPanel extends JPanel {
 	/*
 	 * The scheduler chosen from the drop down menu
 	 */
-	public SchedulerInterface schedulerIF = null;
+	public Scheduler schedulerIF = null;
 	
 
 	/*
@@ -180,7 +186,7 @@ public class GUIPanel extends JPanel {
 		btnReset.setBounds(677, 400, 117, 29);
 		add(btnReset);
 
-		btnGenerateRandomProcess = new JButton("Generate Random Process");
+		btnGenerateRandomProcess = new JButton("Generate Random process.Process");
 		btnGenerateRandomProcess.setBounds(566, 432, 228, 29);
 		add(btnGenerateRandomProcess);
 
@@ -261,7 +267,7 @@ public class GUIPanel extends JPanel {
 		lblNumber.setBounds(576, 465, 61, 16);
 		add(lblNumber);
 		
-		lblCurrentCpuProcess = new JLabel("CPU Process:");
+		lblCurrentCpuProcess = new JLabel("hardware.CPU process.Process:");
 		lblCurrentCpuProcess.setBounds(542, 343, 141, 16);
 		add(lblCurrentCpuProcess);
 		
@@ -276,7 +282,7 @@ public class GUIPanel extends JPanel {
 		/*
 		 * Values for the drop down combo box for the scheduler. 
 		 */
-		String[] dropDownSchedulers = {"Select a scheduler: ", "Round Robin", "FCFS"};
+		String[] dropDownSchedulers = {"Select a scheduler: ", "Round Robin", "scheduling.FCFS"};
 		
 		/*
 		 * Instantiating the drop down combo box for the schedulers
@@ -301,7 +307,7 @@ public class GUIPanel extends JPanel {
 					schedulerIF = new RoundRobin(25, clock);
 					btnStart.setEnabled(true);
 				}
-				else if (sched.equals("FCFS")){
+				else if (sched.equals("scheduling.FCFS")){
 					schedulerIF = new FCFS(clock);
 					btnStart.setEnabled(true);
 				}
@@ -315,7 +321,7 @@ public class GUIPanel extends JPanel {
 		/*
 		 * Table Headers
 		 */
-		String[] tableColumns = { "Process: ", "State", "Arrival: " };
+		String[] tableColumns = { "process.Process: ", "process.State", "Arrival: " };
 
 		/*
 		 * Mock 2D Arrays for JTable rows/columns
@@ -510,7 +516,7 @@ public class GUIPanel extends JPanel {
 	 * 
 	 */
 	public void updateQueueTable(ArrayList<Process> pArr, DefaultTableModel dtm, JTable table) {
-		String[] headers = { "Process: ", "State", "Arrival: " };
+		String[] headers = { "process.Process: ", "process.State", "Arrival: " };
 		String[][] data = new String[50][3];
 		for (int i = 0; i < 50; i++) {
 
@@ -621,20 +627,20 @@ public class GUIPanel extends JPanel {
 		this.operationLabel = operationLabel;
 	}
 
-	public SchedulerInterface getSchedulerIF() {
+	public Scheduler getSchedulerIF() {
 		return schedulerIF;
 	}
 
-	public void setSchedulerIF(SchedulerInterface schedulerIF) {
+	public void setSchedulerIF(Scheduler schedulerIF) {
 		this.schedulerIF = schedulerIF;
 	}
 	
-	public SchedulerInterface resetSchedulerIF(){
-		SchedulerInterface si = null;
+	public Scheduler resetSchedulerIF(){
+		Scheduler si = null;
 		if (schedulerSelecterCB.getSelectedItem().toString().equals("Round Robin")){
 			si = new RoundRobin(25,clock);
 		}
-		else if (schedulerSelecterCB.getSelectedItem().toString().equals("FCFS")){
+		else if (schedulerSelecterCB.getSelectedItem().toString().equals("scheduling.FCFS")){
 			si = new FCFS(clock);
 		}
 		return si;

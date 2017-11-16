@@ -1,3 +1,9 @@
+import hardware.CPU;
+import hardware.Clock;
+import process.Process;
+import process.State;
+import scheduling.Scheduler;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
@@ -13,7 +19,7 @@ public class OperatingSystemRunner extends JFrame {
 	public static GUIPanel pan;
 	public static Memory memory;
 	public static Clock clock;
-	public static SchedulerInterface scheduler;
+	public static Scheduler scheduler;
 	public static CPU cpu;
 
 	private static final long serialVersionUID = 1L;
@@ -78,7 +84,7 @@ public class OperatingSystemRunner extends JFrame {
 		 */
 		if (scheduler == null) {
 			scheduler = pan.getSchedulerIF();
-			if (scheduler.getType().equals("FCFS")) {
+			if (scheduler.getType().equals("scheduling.FCFS")) {
 				timeQuantum = 1;
 			} else if (scheduler.getType().equals("Round Robin")) {
 				timeQuantum = 25;
@@ -133,7 +139,7 @@ public class OperatingSystemRunner extends JFrame {
 		 * This begins the main 'cpu loop'; While the time quantum has not
 		 * expired, and cpu.isContinueCurrentExecution() (This is a boolean
 		 * value that is switched on the condition that the calculate time
-		 * expire, or any other interrupt occurs) is true: The CPU is run on the
+		 * expire, or any other interrupt occurs) is true: The hardware.CPU is run on the
 		 * process. Time quantum is decremented, and the clock incremented.
 		 * 
 		 * The thread is allowed to sleep for each loop for a seam-less
@@ -143,16 +149,16 @@ public class OperatingSystemRunner extends JFrame {
 		if (!scheduler.getReadyQueue().isEmpty()) {
 			Process p = scheduler.getReadyProcess();
 			System.out.println(p.getName());
-			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()){
+			if (scheduler.getType().equals("scheduling.FCFS") && scheduler.getWaitingQueue().isEmpty()){
 				executeCPU(currentTimeQuantum, p);
-			}else if(scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()){
+			}else if(scheduler.getType().equals("scheduling.FCFS") && !scheduler.getWaitingQueue().isEmpty()){
 				
 			}else
 			{
 				executeCPU(currentTimeQuantum, p);
 			}
 				
-			if (!scheduler.getType().equals("FCFS")) {
+			if (!scheduler.getType().equals("scheduling.FCFS")) {
 				pan.getLblCurrentProcessName().setText("");
 				pan.getOperationLabel().setText("");
 			}
@@ -209,9 +215,9 @@ public class OperatingSystemRunner extends JFrame {
 	}
 	
 	/*
-	 * This is the execute method to death with processes moving through the CPU
+	 * This is the execute method to death with processes moving through the hardware.CPU
 	 * The inner if condition exists so that processes run for time quantum while
-	 * incrementing the clock in Round Robin. This statement is skipped when the FCFS
+	 * incrementing the clock in Round Robin. This statement is skipped when the scheduling.FCFS
 	 * scheduler is being used. 
 	 */
 	public static void executeCPU(int ctq, Process p) throws InterruptedException{

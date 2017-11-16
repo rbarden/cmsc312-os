@@ -1,3 +1,4 @@
+package hardware;
 
 public class Clock {
 	int clock;

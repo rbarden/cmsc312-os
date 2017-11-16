@@ -1,3 +1,5 @@
+import process.Process;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -21,7 +23,7 @@ public class GenerateRandomProcess {
 		for (int i = 1; i < numOfLines - 1; i++) {
 			randLine = ThreadLocalRandom.current().nextInt(1, 101);
 			if (randLine >=1 && randLine < 25){
-				pw.println("out Output From Process " + processName);
+				pw.println("out Output From process.Process " + processName);
 			}
 			else if (randLine >= 25 && randLine < 50){
 				pw.println("io");

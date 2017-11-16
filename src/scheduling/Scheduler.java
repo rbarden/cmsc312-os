@@ -1,6 +1,10 @@
+package scheduling;
+
+import process.Process;
+
 import java.util.ArrayList;
 
-public interface SchedulerInterface {
+public interface Scheduler {
 	/*
 	 * Return the type of scheduler (As a String)
 	 */
@@ -11,7 +15,7 @@ public interface SchedulerInterface {
 	Process getReadyProcess();
 	
 	/*
-	 * A method to reschedule a process after it leaves the CPU
+	 * A method to reschedule a process after it leaves the hardware.CPU
 	 */
 	void schedule(Process process);
 	

@@ -1,3 +1,8 @@
+package hardware;
+
+import process.Process;
+import process.State;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -15,7 +20,7 @@ public class CPU {
 
 
 	/*
-	 * This CPU checks each process command from its original process file and executes its' commands 
+	 * This hardware.CPU checks each process command from its original process file and executes its' commands
 	 * accordingly.
 	 */
 	public void run(Process p) {

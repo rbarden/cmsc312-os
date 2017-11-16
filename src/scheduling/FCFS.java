@@ -1,6 +1,12 @@
+package scheduling;
+
+import hardware.Clock;
+import process.Process;
+import process.State;
+
 import java.util.ArrayList;
 
-public class FCFS implements SchedulerInterface {
+public class FCFS implements Scheduler {
 
 	private ArrayList<Process> newQueue;
 	private ArrayList<Process> readyQueue;
@@ -8,7 +14,7 @@ public class FCFS implements SchedulerInterface {
 
 	private int totalMemoryUsed = 0;
 	private int totalMemoryAvailable = 4096;
-	private final String type = "FCFS";
+	private final String type = "scheduling.FCFS";
 	
 	private Clock clock;
 
@@ -60,13 +66,13 @@ public class FCFS implements SchedulerInterface {
 		pollNewQueue();
 		Process terminated = null;
 		/*
-		 * The CPU will allow for processes to be rescheduled with a status of
+		 * The hardware.CPU will allow for processes to be rescheduled with a status of
 		 * EXIT. These processes are removed here.
 		 */
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 			if (p.getProcessState() == State.EXIT) {
-				System.out.println("Process Removed Ready");
+				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
 				totalMemoryAvailable += p.getProcessMemory();

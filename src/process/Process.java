@@ -1,3 +1,5 @@
+package process;
+
 import java.util.ArrayList;
 
 public class Process {
@@ -17,7 +19,7 @@ public class Process {
 
 		
 		public Process(State processState, String name, int programCounter, int priority, int processMemory,
-				int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus) {
+					   int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus) {
 			super();
 			this.processState = processState;
 			this.name = name;
@@ -99,7 +101,7 @@ public class Process {
 
 		@Override
 		public String toString() {
-			return "State: " + processState + ", Name: " + name + ", PC: " + programCounter
+			return "process.State: " + processState + ", Name: " + name + ", PC: " + programCounter
 					+ ", PR: " + priority + ", MEM: " + processMemory + ", IOTR: "
 					+ iOTimeRemaining + ", AT: " + arrivalTime 
 					+ "]";

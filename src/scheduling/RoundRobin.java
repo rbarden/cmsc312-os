@@ -1,6 +1,12 @@
+package scheduling;
+
+import hardware.Clock;
+import process.Process;
+import process.State;
+
 import java.util.ArrayList;
 
-public class RoundRobin implements SchedulerInterface {
+public class RoundRobin implements Scheduler {
 	/*
 	 * The queue representations
 	 */
@@ -97,7 +103,7 @@ public class RoundRobin implements SchedulerInterface {
 	 * servicing its IO request, such that its iOTimeRemaining equals 0, the
 	 * process is re-scheduled. Otherwise, the variable is decremented.
 	 * 
-	 * @return Process that has terminated, or null in the case of no terminated
+	 * @return process.Process that has terminated, or null in the case of no terminated
 	 * process.
 	 */
 	public Process updateScheduler() {
@@ -105,13 +111,13 @@ public class RoundRobin implements SchedulerInterface {
 		pollNewQueue();
 		Process terminated = null;
 		/*
-		 * The CPU will allow for processes to be rescheduled with a status of
+		 * The hardware.CPU will allow for processes to be rescheduled with a status of
 		 * EXIT. These processes are removed here.
 		 */
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 			if (p.getProcessState() == State.EXIT) {
-				System.out.println("Process Removed Ready");
+				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
 				totalMemoryAvailable += p.getProcessMemory();
