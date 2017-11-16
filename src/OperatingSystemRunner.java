@@ -84,7 +84,7 @@ public class OperatingSystemRunner extends JFrame {
 		 */
 		if (scheduler == null) {
 			scheduler = pan.getSchedulerIF();
-			if (scheduler.getType().equals("scheduling.FCFS")) {
+			if (scheduler.getType().equals("FCFS")) {
 				timeQuantum = 1;
 			} else if (scheduler.getType().equals("Round Robin")) {
 				timeQuantum = 25;
@@ -149,16 +149,16 @@ public class OperatingSystemRunner extends JFrame {
 		if (!scheduler.getReadyQueue().isEmpty()) {
 			Process p = scheduler.getReadyProcess();
 			System.out.println(p.getName());
-			if (scheduler.getType().equals("scheduling.FCFS") && scheduler.getWaitingQueue().isEmpty()){
+			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()){
 				executeCPU(currentTimeQuantum, p);
-			}else if(scheduler.getType().equals("scheduling.FCFS") && !scheduler.getWaitingQueue().isEmpty()){
+			}else if(scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()){
 				
 			}else
 			{
 				executeCPU(currentTimeQuantum, p);
 			}
 				
-			if (!scheduler.getType().equals("scheduling.FCFS")) {
+			if (!scheduler.getType().equals("FCFS")) {
 				pan.getLblCurrentProcessName().setText("");
 				pan.getOperationLabel().setText("");
 			}
