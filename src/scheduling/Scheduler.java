@@ -15,7 +15,7 @@ public interface Scheduler {
 	Process getReadyProcess();
 	
 	/*
-	 * A method to reschedule a process after it leaves the hardware.CPU
+	 * A method to reschedule a process after it leaves the CPU
 	 */
 	void schedule(Process process);
 	

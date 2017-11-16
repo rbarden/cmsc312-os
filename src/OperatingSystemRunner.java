@@ -139,7 +139,7 @@ public class OperatingSystemRunner extends JFrame {
 		 * This begins the main 'cpu loop'; While the time quantum has not
 		 * expired, and cpu.isContinueCurrentExecution() (This is a boolean
 		 * value that is switched on the condition that the calculate time
-		 * expire, or any other interrupt occurs) is true: The hardware.CPU is run on the
+		 * expire, or any other interrupt occurs) is true: The CPU is run on the
 		 * process. Time quantum is decremented, and the clock incremented.
 		 * 
 		 * The thread is allowed to sleep for each loop for a seam-less
@@ -215,9 +215,9 @@ public class OperatingSystemRunner extends JFrame {
 	}
 	
 	/*
-	 * This is the execute method to death with processes moving through the hardware.CPU
+	 * This is the execute method to death with processes moving through the CPU
 	 * The inner if condition exists so that processes run for time quantum while
-	 * incrementing the clock in Round Robin. This statement is skipped when the scheduling.FCFS
+	 * incrementing the clock in Round Robin. This statement is skipped when the FCFS
 	 * scheduler is being used. 
 	 */
 	public static void executeCPU(int ctq, Process p) throws InterruptedException{
