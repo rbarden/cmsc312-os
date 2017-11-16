@@ -640,7 +640,7 @@ public class GUIPanel extends JPanel {
 		if (schedulerSelecterCB.getSelectedItem().toString().equals("Round Robin")){
 			si = new RoundRobin(25,clock);
 		}
-		else if (schedulerSelecterCB.getSelectedItem().toString().equals("scheduling.FCFS")){
+		else if (schedulerSelecterCB.getSelectedItem().toString().equals("FCFS")){
 			si = new FCFS(clock);
 		}
 		return si;
