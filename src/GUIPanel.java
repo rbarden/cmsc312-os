@@ -186,7 +186,7 @@ public class GUIPanel extends JPanel {
 		btnReset.setBounds(677, 400, 117, 29);
 		add(btnReset);
 
-		btnGenerateRandomProcess = new JButton("Generate Random process.Process");
+		btnGenerateRandomProcess = new JButton("Generate Random Process");
 		btnGenerateRandomProcess.setBounds(566, 432, 228, 29);
 		add(btnGenerateRandomProcess);
 
@@ -267,7 +267,7 @@ public class GUIPanel extends JPanel {
 		lblNumber.setBounds(576, 465, 61, 16);
 		add(lblNumber);
 		
-		lblCurrentCpuProcess = new JLabel("hardware.CPU process.Process:");
+		lblCurrentCpuProcess = new JLabel("CPU Process:");
 		lblCurrentCpuProcess.setBounds(542, 343, 141, 16);
 		add(lblCurrentCpuProcess);
 		
@@ -282,7 +282,7 @@ public class GUIPanel extends JPanel {
 		/*
 		 * Values for the drop down combo box for the scheduler. 
 		 */
-		String[] dropDownSchedulers = {"Select a scheduler: ", "Round Robin", "scheduling.FCFS"};
+		String[] dropDownSchedulers = {"Select a scheduler: ", "Round Robin", "FCFS"};
 		
 		/*
 		 * Instantiating the drop down combo box for the schedulers
@@ -307,7 +307,7 @@ public class GUIPanel extends JPanel {
 					schedulerIF = new RoundRobin(25, clock);
 					btnStart.setEnabled(true);
 				}
-				else if (sched.equals("scheduling.FCFS")){
+				else if (sched.equals("FCFS")){
 					schedulerIF = new FCFS(clock);
 					btnStart.setEnabled(true);
 				}
@@ -321,7 +321,7 @@ public class GUIPanel extends JPanel {
 		/*
 		 * Table Headers
 		 */
-		String[] tableColumns = { "process.Process: ", "process.State", "Arrival: " };
+		String[] tableColumns = { "Process: ", "State", "Arrival: " };
 
 		/*
 		 * Mock 2D Arrays for JTable rows/columns
@@ -516,7 +516,7 @@ public class GUIPanel extends JPanel {
 	 * 
 	 */
 	public void updateQueueTable(ArrayList<Process> pArr, DefaultTableModel dtm, JTable table) {
-		String[] headers = { "process.Process: ", "process.State", "Arrival: " };
+		String[] headers = { "Process: ", "State", "Arrival: " };
 		String[][] data = new String[50][3];
 		for (int i = 0; i < 50; i++) {
 
