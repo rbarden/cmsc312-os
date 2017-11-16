@@ -165,16 +165,6 @@ public class OperatingSystemRunner extends JFrame {
 			scheduler.schedule(p);
 
 		}
-		
-		if (!cpu.getNewChildren().isEmpty()){
-			for (Process p : cpu.getNewChildren()) {
-				p.setProcessState(State.NEW);
-				scheduler.addNewProcess(p);
-				scheduler.schedule(p);
-				memory.setMemoryUsed(scheduler.getMemoryUsed());
-			}
-			cpu.getNewChildren().clear();
-		}
 
 		/*
 		 * If any process was selected for removal, it is returned by the
