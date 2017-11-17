@@ -1,5 +1,7 @@
 package process;
 
+import memory.Page;
+
 import java.util.ArrayList;
 
 public class Process {
@@ -11,6 +13,7 @@ public class Process {
 		public int programCounter;
 		public int priority;
 		public int processMemory;
+		private ArrayList<Page> allocatedMemory;
 		public int iOTimeRemaining;
 		public int arrivalTime;
 		public boolean hasEnteredCPU = false;
@@ -130,5 +133,12 @@ public class Process {
 		public void setHasEnteredCPU(boolean hasEnteredCPU) {
 			this.hasEnteredCPU = hasEnteredCPU;
 		}
-		
+
+		public ArrayList<Page> getAllocatedMemory() {
+			return allocatedMemory;
+		}
+
+		public void setAllocatedMemory(ArrayList<Page> allocatedMemory) {
+			this.allocatedMemory = allocatedMemory;
+		}
 }

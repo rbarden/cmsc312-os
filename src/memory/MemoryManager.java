@@ -18,4 +18,18 @@ public interface MemoryManager {
      * @return true if de-allocation was successful
      */
     boolean deallocate(Process process);
+
+    /**
+     * Returns the amount of free memory in the system
+     *
+     * @return the amount of free memory
+     */
+    int getFreeMemorySize();
+
+    /**
+     * Returns the amount of total memory in the system
+     *
+     * @return the amount of total memory
+     */
+    int getTotalMemorySize();
 }
