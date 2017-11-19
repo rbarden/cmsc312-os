@@ -13,14 +13,14 @@ public class MMU implements MemoryManager {
     private ArrayList<Page> freePages;
 
     /**
-     * Constructs an MMU with initial capacity 4096
+     * Constructs an MMU with capacity 4096 main memory
      */
     public MMU() {
         this(4096);
     }
 
     /**
-     * Constructs an MMU with the given initial capacity
+     * Constructs an MMU with the given capacity
      *
      * @param capacity capacity of main memory in "memory units"
      */
