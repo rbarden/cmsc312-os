@@ -48,11 +48,27 @@ public class MMUVirtual implements MemoryManager{
 
     @Override
     public boolean allocate(Process process) {
-        return false;
+        int memoryNeeded = process.getProcessMemory();
+
+        if(memoryNeeded > getFreeMemorySize()) return false;
+
+        ArrayList<Page> memoryToAllocate = new ArrayList<>();
+        for(int i = 0; i < memoryNeeded; i++) {
+            Page page = freePages.remove(0);
+            page.setProcess(process);
+            memoryToAllocate.add(page);
+        }
+        process.setAllocatedMemory(memoryToAllocate);
+
+        return true;
     }
 
     @Override
     public boolean deallocate(Process process) {
-        return false;
+        for(Page page : process.getAllocatedMemory()) {
+            page.setProcess(null);
+            freePages.add(page);
+        }
+        return true;
     }
 }
