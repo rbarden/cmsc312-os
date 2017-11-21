@@ -29,7 +29,7 @@ public class OperatingSystemRunner extends JFrame {
 		pan = new GUIPanel(clock);
 		memory = new Memory();
 		scheduler = null;
-		cpu = new CPU();
+		cpu = new CPU(clock);
 		new OperatingSystemRunner(pan);
 
 		int executionSpeedSliderVal;
@@ -210,13 +210,13 @@ public class OperatingSystemRunner extends JFrame {
 	 * incrementing the clock in Round Robin. This statement is skipped when the FCFS
 	 * scheduler is being used. 
 	 */
-	public static void executeCPU(int ctq, Process p) throws InterruptedException{
+	public static void executeCPU(int continuousTimeQuantum, Process p) throws InterruptedException{
 		pan.getLblCurrentProcessName().setText(p.getName());
-		while (ctq > 0 && cpu.isContinueCurrentExecution()) {
+		while (continuousTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
 			cpu.run(p);
-			ctq--;
+			continuousTimeQuantum--;
 			pan.getOperationLabel().setText(cpu.getProcessOperation());
-			if (ctq > 0 && cpu.isContinueCurrentExecution()) {
+			if (continuousTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
 				clock.incrementClock();
 				pan.setClockLbl(String.format("%06d", clock.getClock()));
 				Thread.sleep(1000 / pan.getSliderValue());

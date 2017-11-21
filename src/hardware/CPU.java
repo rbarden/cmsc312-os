@@ -23,6 +23,11 @@ public class CPU {
 	private Register register;
 	private Cache cache;
 
+	private Clock clock;
+
+	public CPU(Clock clock) {
+		this.clock = clock;
+	}
 
 	/*
 	 * This hardware.CPU checks each process command from its original process file and executes its' commands
@@ -123,4 +128,7 @@ public class CPU {
 		return cache;
 	}
 
+	public Clock getClock() {
+		return clock;
+	}
 }
