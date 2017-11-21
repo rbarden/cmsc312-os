@@ -75,6 +75,8 @@ public class MMU implements MemoryManager {
         for (Page page : processAllocatedMemory) {
             if(new Random().nextInt(100) < 40) {
                 page.setLastAccess(new Random().nextInt(1000));
+                potentialRegisterPages.add(page);
+                
                 if (cachePages.contains(page)) continue;
 
                 if (cache.getFreePages() > 0) {
@@ -85,7 +87,6 @@ public class MMU implements MemoryManager {
 
                 cachePages.poll();
                 cachePages.add(page);
-                potentialRegisterPages.add(page);
             }
         }
 
