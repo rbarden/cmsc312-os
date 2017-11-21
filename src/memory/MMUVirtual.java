@@ -4,7 +4,7 @@ import process.Process;
 
 import java.util.ArrayList;
 
-public class MMUVirtual implements MemoryManager{
+public class MMUVirtual implements MemoryManager {
 
     private ArrayList<Page> virtualMemory;
     private ArrayList<Page> mainMemory;
