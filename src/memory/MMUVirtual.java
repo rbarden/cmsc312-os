@@ -48,7 +48,7 @@ public class MMUVirtual implements MemoryManager {
 
     @Override
     public boolean allocate(Process process) {
-        int memoryNeeded = process.getProcessMemory();
+        int memoryNeeded = process.getProcessMemorySize();
 
         if(memoryNeeded > getFreeMemorySize()) return false;
 

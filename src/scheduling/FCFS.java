@@ -50,9 +50,9 @@ public class FCFS implements Scheduler {
 
 	public void pollNewQueue() {
 		if (!newQueue.isEmpty()) {
-			if (newQueue.get(0).getProcessMemory() <= totalMemoryAvailable) {
-				totalMemoryAvailable -= newQueue.get(0).getProcessMemory();
-				totalMemoryUsed += newQueue.get(0).getProcessMemory();
+			if (newQueue.get(0).getProcessMemorySize() <= totalMemoryAvailable) {
+				totalMemoryAvailable -= newQueue.get(0).getProcessMemorySize();
+				totalMemoryUsed += newQueue.get(0).getProcessMemorySize();
 				newQueue.get(0).setProcessState(State.READY);
 				newQueue.get(0).setArrivalTime(clock.getClock());
 				readyQueue.add(newQueue.get(0));
@@ -75,8 +75,8 @@ public class FCFS implements Scheduler {
 				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
-				totalMemoryAvailable += p.getProcessMemory();
-				totalMemoryUsed -= p.getProcessMemory();
+				totalMemoryAvailable += p.getProcessMemorySize();
+				totalMemoryUsed -= p.getProcessMemorySize();
 			}
 		}
 		readyQueue.removeAll(toRemoveTerm);

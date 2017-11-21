@@ -1,5 +1,7 @@
 package hardware;
 
+import memory.Cache;
+import memory.Register;
 import process.Process;
 import process.State;
 
@@ -17,6 +19,9 @@ public class CPU {
 	private String output = "";
 
 	private ArrayList<Process> newChildren = new ArrayList<>();
+
+	private Register register;
+	private Cache cache;
 
 
 	/*
@@ -50,7 +55,7 @@ public class CPU {
 				System.out.println(splitComm[1]);
 				process.setProcessState(State.READY);
 				process.setProgramCounter(process.getProgramCounter() + 1);
-			} 
+			}
 
 		} else if (pComm.equals("io")) {
 			processOperation = pComm;
@@ -110,5 +115,12 @@ public class CPU {
 		this.output = output;
 	}
 
+	public Register getRegister() {
+		return register;
+	}
+
+	public Cache getCache() {
+		return cache;
+	}
 
 }

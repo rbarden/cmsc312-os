@@ -40,9 +40,9 @@ public class RoundRobin implements Scheduler {
 	public void pollNewQueue() {
 		ArrayList<Process> rem = new ArrayList<Process>();
 		for (int i = 0; i < newQueue.size(); i++) {
-			if (newQueue.get(i).getProcessMemory() <= totalMemoryAvailable) {
-				totalMemoryAvailable -= newQueue.get(i).getProcessMemory();
-				totalMemoryUsed += newQueue.get(i).getProcessMemory();
+			if (newQueue.get(i).getProcessMemorySize() <= totalMemoryAvailable) {
+				totalMemoryAvailable -= newQueue.get(i).getProcessMemorySize();
+				totalMemoryUsed += newQueue.get(i).getProcessMemorySize();
 				newQueue.get(i).setProcessState(State.READY);
 				newQueue.get(i).setArrivalTime(clock.getClock());
 				readyQueue.add(newQueue.get(i));
@@ -120,8 +120,8 @@ public class RoundRobin implements Scheduler {
 				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
-				totalMemoryAvailable += p.getProcessMemory();
-				totalMemoryUsed -= p.getProcessMemory();
+				totalMemoryAvailable += p.getProcessMemorySize();
+				totalMemoryUsed -= p.getProcessMemorySize();
 
 			}
 		}

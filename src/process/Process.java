@@ -12,7 +12,7 @@ public class Process {
 		public int calculateTimeRemaining;
 		public int programCounter;
 		public int priority;
-		public int processMemory;
+		public int processMemorySize;
 		private ArrayList<Page> allocatedMemory;
 		public int iOTimeRemaining;
 		public int arrivalTime;
@@ -21,14 +21,14 @@ public class Process {
 		public ArrayList<String> processCommands;
 
 		
-		public Process(State processState, String name, int programCounter, int priority, int processMemory,
+		public Process(State processState, String name, int programCounter, int priority, int processMemorySize,
 					   int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus) {
 			super();
 			this.processState = processState;
 			this.name = name;
 			this.programCounter = programCounter;
 			this.priority = priority;
-			this.processMemory = processMemory;
+			this.processMemorySize = processMemorySize;
 			this.iOTimeRemaining = iOTimeRemaining;
 			this.processCommands = processCommands;
 			
@@ -66,12 +66,12 @@ public class Process {
 			this.priority = priority;
 		}
 
-		public int getProcessMemory() {
-			return processMemory;
+		public int getProcessMemorySize() {
+			return processMemorySize;
 		}
 
-		public void setProcessMemory(int processMemory) {
-			this.processMemory = processMemory;
+		public void setProcessMemorySize(int processMemorySize) {
+			this.processMemorySize = processMemorySize;
 		}
 
 		public ArrayList<String> getProcessCommands() {
@@ -105,7 +105,7 @@ public class Process {
 		@Override
 		public String toString() {
 			return "process.State: " + processState + ", Name: " + name + ", PC: " + programCounter
-					+ ", PR: " + priority + ", MEM: " + processMemory + ", IOTR: "
+					+ ", PR: " + priority + ", MEM: " + processMemorySize + ", IOTR: "
 					+ iOTimeRemaining + ", AT: " + arrivalTime 
 					+ "]";
 		}

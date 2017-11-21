@@ -2,9 +2,10 @@ package memory;
 
 import process.Process;
 
-public class Page {
+public class Page implements Comparable {
     private int id;
     private Process process;
+    private int lastAccess;
 
     public Page(int id) {
         this.id = id;
@@ -19,6 +20,10 @@ public class Page {
         this.process = process;
     }
 
+    public void setLastAccess(int lastAccess) {
+        this.lastAccess = lastAccess;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -30,7 +35,7 @@ public class Page {
     }
 
     @Override
-    public int hashCode() {
-        return id;
+    public int compareTo(Object o) {
+        return Integer.compare(this.lastAccess, ((Page) o).lastAccess);
     }
 }

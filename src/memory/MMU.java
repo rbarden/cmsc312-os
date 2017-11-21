@@ -1,8 +1,12 @@
 package memory;
 
+import hardware.CPU;
 import process.Process;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.Random;
 
 /**
  * Implementation of the Memory Manager interface without virtual memory.
@@ -36,7 +40,7 @@ public class MMU implements MemoryManager {
 
     @Override
     public boolean allocate(Process process) {
-        int memoryNeeded = process.getProcessMemory();
+        int memoryNeeded = process.getProcessMemorySize();
 
         if(memoryNeeded > getFreeMemorySize()) return false;
 
@@ -57,6 +61,39 @@ public class MMU implements MemoryManager {
             page.setProcess(null);
             freePages.add(page);
         }
+        return true;
+    }
+
+    public boolean load(Process process, CPU cpu) {
+        Cache cache = cpu.getCache();
+        PriorityQueue<Page> cachePages = cpu.getCache().getPages();
+
+        ArrayList<Page> processAllocatedMemory = process.getAllocatedMemory();
+
+        ArrayList<Page> potentialRegisterPages = new ArrayList<>(processAllocatedMemory.size());
+
+        for (Page page : processAllocatedMemory) {
+            if(new Random().nextInt(100) < 40) {
+                page.setLastAccess(new Random().nextInt(1000));
+                if (cachePages.contains(page)) continue;
+
+                if (cache.getFreePages() > 0) {
+                    cachePages.add(page);
+                    cache.setFreePages(cache.getFreePages() - 1);
+                    continue;
+                }
+
+                cachePages.poll();
+                cachePages.add(page);
+                potentialRegisterPages.add(page);
+            }
+        }
+
+        Collections.shuffle(potentialRegisterPages);
+        for (int i = 0; i < cpu.getRegister().getSlots().length; i++) {
+            cpu.getRegister().getSlots()[i] = potentialRegisterPages.get(i);
+        }
+
         return true;
     }
 
