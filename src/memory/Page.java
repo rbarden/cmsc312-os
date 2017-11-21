@@ -10,6 +10,7 @@ public class Page implements Comparable {
     public Page(int id) {
         this.id = id;
         this.process = null;
+        this.lastAccess = 0;
     }
 
     public Process getProcess() {
