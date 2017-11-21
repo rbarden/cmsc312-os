@@ -1,4 +1,4 @@
-package hardware;
+package memory;
 
 public class Cache {
 }
