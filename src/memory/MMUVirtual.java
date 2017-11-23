@@ -1,15 +1,17 @@
 package memory;
 
+import hardware.CPU;
 import process.Process;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.Random;
 
 public class MMUVirtual implements MemoryManager {
 
-    private ArrayList<Page> virtualMemory;
-    private ArrayList<Page> mainMemory;
-    private ArrayList<Page> freePages;
-
+    private Memory virtualMemory;
+    private Memory mainMemory;
 
     /**
      * Constructs an MMU with virtual memory with capacity 8912 virtual and 4096 main memories.
@@ -25,25 +27,18 @@ public class MMUVirtual implements MemoryManager {
      * @param mainCapacity capacity of main memory
      */
     public MMUVirtual(int virtualCapacity, int mainCapacity) {
-        this.virtualMemory = new ArrayList<>(virtualCapacity);
-        for(int i = 0; i < virtualCapacity; i++) {
-            virtualMemory.add(new Page(i));
-        }
-
-        this.freePages = new ArrayList<>(virtualCapacity);
-        freePages.addAll(mainMemory);
-
-        this.mainMemory = new ArrayList<>(mainCapacity);
+        this.virtualMemory = new Memory(virtualCapacity);
+        this.mainMemory = new Memory(mainCapacity);
     }
 
     @Override
     public int getFreeMemorySize() {
-        return freePages.size();
+        return virtualMemory.getFreePages().size();
     }
 
     @Override
     public int getTotalMemorySize() {
-        return virtualMemory.size();
+        return virtualMemory.getPages().size();
     }
 
     @Override
@@ -54,7 +49,7 @@ public class MMUVirtual implements MemoryManager {
 
         ArrayList<Page> memoryToAllocate = new ArrayList<>();
         for(int i = 0; i < memoryNeeded; i++) {
-            Page page = freePages.remove(0);
+            Page page = virtualMemory.getFreePages().remove(0);
             page.setProcess(process);
             memoryToAllocate.add(page);
         }
@@ -67,8 +62,65 @@ public class MMUVirtual implements MemoryManager {
     public boolean deallocate(Process process) {
         for(Page page : process.getAllocatedMemory()) {
             page.setProcess(null);
-            freePages.add(page);
+            virtualMemory.getFreePages().add(page);
         }
+        return true;
+    }
+
+    @Override
+    public boolean load(Process process, CPU cpu) {
+        Cache cache = cpu.getCache();
+        PriorityQueue<Page> cachePages = cpu.getCache().getPages();
+
+        PriorityQueue<Page> memoryPages = mainMemory.getPages();
+
+        ArrayList<Page> processAllocatedMemory = process.getAllocatedMemory();
+
+        ArrayList<Page> potentialRegisterPages = new ArrayList<>(processAllocatedMemory.size());
+
+        for (Page page : processAllocatedMemory) {
+            if(new Random().nextInt(100) < 40) {
+                page.setLastAccess(cpu.getClock().getClock());
+                potentialRegisterPages.add(page);
+
+                if (cachePages.contains(page) && memoryPages.contains(page)) continue;
+
+                if (cachePages.contains(page) && !memoryPages.contains(page)) {
+                    if(mainMemory.getFreePagesSize() > 0) {
+                        memoryPages.add(page);
+                        mainMemory.setFreePagesSize(mainMemory.getFreePagesSize() - 1);
+                    }
+
+                    memoryPages.poll();
+                    memoryPages.add(page);
+                }
+
+                if(!cachePages.contains(page) && !memoryPages.contains(page)) {
+                    if(mainMemory.getFreePagesSize() > 0) {
+                        memoryPages.add(page);
+                        mainMemory.setFreePagesSize(mainMemory.getFreePagesSize() - 1);
+                    }
+
+                    memoryPages.poll();
+                    memoryPages.add(page);
+
+                    if (cache.getFreePages() > 0) {
+                        cachePages.add(page);
+                        cache.setFreePages(cache.getFreePages() - 1);
+                        continue;
+                    }
+
+                    cachePages.poll();
+                    cachePages.add(page);
+                }
+            }
+        }
+
+        Collections.shuffle(potentialRegisterPages);
+        for (int i = 0; i < cpu.getRegister().getSlots().length; i++) {
+            cpu.getRegister().getSlots()[i] = potentialRegisterPages.get(i);
+        }
+
         return true;
     }
 }
