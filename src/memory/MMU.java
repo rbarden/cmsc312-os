@@ -64,6 +64,7 @@ public class MMU implements MemoryManager {
         return true;
     }
 
+    @Override
     public boolean load(Process process, CPU cpu) {
         Cache cache = cpu.getCache();
         PriorityQueue<Page> cachePages = cpu.getCache().getPages();
