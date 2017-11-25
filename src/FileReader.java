@@ -49,7 +49,7 @@ public class FileReader {
 		arr.remove(0);
 		int priority =Integer.parseInt(arr.get(0).trim());
 		arr.remove(0);
-		return new Process(State.READY, pName, 0, priority, mem, 0, arr, false);
+		return new Process(State.READY, pName, 0, priority, mem, 0, arr, false, null);
 	}
 	
 }
