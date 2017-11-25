@@ -21,9 +21,10 @@ public class Process implements Comparable<Process>{
 		
 		public ArrayList<String> processCommands;
 
+		public Process parentProcess;
 		
 		public Process(State processState, String name, int programCounter, int priority, int processMemorySize,
-					   int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus) {
+					   int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus, Process parentProcess) {
 			super();
 			this.processState = processState;
 			this.name = name;
@@ -32,6 +33,7 @@ public class Process implements Comparable<Process>{
 			this.processMemorySize = processMemorySize;
 			this.iOTimeRemaining = iOTimeRemaining;
 			this.processCommands = processCommands;
+			this.parentProcess = parentProcess;
 			
 		}
 
@@ -158,5 +160,11 @@ public class Process implements Comparable<Process>{
 			return i;
 		}
 
-	
+		public Process getParentProcess() {
+			return parentProcess;
+		}
+
+		public void setParentProcess(Process parentProcess) {
+			this.parentProcess = parentProcess;
+		}
 }

@@ -49,6 +49,18 @@ public class MMUVirtual implements MemoryManager {
         if(memoryNeeded > getFreeMemorySize()) return false;
 
         ArrayList<Page> memoryToAllocate = new ArrayList<>();
+
+        if(process.getParentProcess() != null) {
+            memoryNeeded = 0;
+            ArrayList<Page> parentMemory = process.getParentProcess().getAllocatedMemory();
+            for(Page page: parentMemory) {
+                if(new Random().nextInt(100) < 20) {
+                    memoryNeeded++;
+                }
+                memoryToAllocate.add(page);
+            }
+        }
+
         for(int i = 0; i < memoryNeeded; i++) {
             Page page = virtualMemory.getFreePages().remove(0);
             page.setProcess(process);
