@@ -4,6 +4,9 @@ import process.Process;
 
 import java.util.ArrayList;
 
+import memory.MMU;
+import memory.MemoryManager;
+
 public interface Scheduler {
 	/*
 	 * Return the type of scheduler (As a String)
@@ -47,4 +50,9 @@ public interface Scheduler {
 	ArrayList<Process> getNewQueue();
 	ArrayList<Process> getWaitingQueue();
 	ArrayList<Process> getReadyQueue();
+	
+	/*
+	 * MMU getters and setters
+	 */
+	public void setMMU(MemoryManager m);
 }

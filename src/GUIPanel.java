@@ -1,12 +1,17 @@
 import hardware.Clock;
+import memory.Cache;
+import memory.Page;
+import memory.Register;
 import process.Process;
 import scheduling.FCFS;
+import scheduling.PriorityScheduler;
 import scheduling.RoundRobin;
 import scheduling.Scheduler;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -14,6 +19,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JSlider;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +33,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JComboBox;
+import javax.swing.JCheckBox;
+import javax.swing.JScrollBar;
 
 public class GUIPanel extends JPanel {
 	/**
@@ -86,6 +95,8 @@ public class GUIPanel extends JPanel {
 	private JTable readyQueueTable;
 	private JTable waitingQueueTable;
 	private JTable finishedQueueTable;
+	private JTable registerTable;
+	private JTable cacheTable;
 
 	/*
 	 * These are the models for the JTables.
@@ -93,6 +104,8 @@ public class GUIPanel extends JPanel {
 	private DefaultTableModel dTMInputQueue;
 	private DefaultTableModel dTMWaitingQueue;
 	private DefaultTableModel dTMFinishedQueue;
+	private DefaultTableModel dTMRegisters;
+	private DefaultTableModel dTMCache;
 
 	/*
 	 * These scroll panes hold the JTables.
@@ -100,16 +113,18 @@ public class GUIPanel extends JPanel {
 	private JScrollPane readyScrollPane;
 	private JScrollPane waitingScrollPane;
 	private JScrollPane finishedScrollPane;
+	private JScrollPane registerScrollPane;
+	private JScrollPane cacheScrollPane;
 
 	/*
 	 * If this is true, the clock should be reset to zero.
 	 */
 	private boolean reset = false;
-	
+
 	/*
 	 * The clock value
 	 */
-	
+
 	private Clock clock;
 	/*
 	 * The string from the command line
@@ -128,16 +143,32 @@ public class GUIPanel extends JPanel {
 	 */
 
 	private ArrayList<Process> newProcesses = new ArrayList<>();
-	
+
 	/*
 	 * The drop down menu to select a scheduler from.
 	 */
 	private JComboBox<String> schedulerSelecterCB;
-	
+
 	/*
 	 * The scheduler chosen from the drop down menu
 	 */
 	public Scheduler schedulerIF = null;
+
+	/*
+	 * The check box to turn virtual memory on or off
+	 */
+	private JCheckBox chckbxUseVirtualMemory;
+	private JTextField txtVirtualMemorySize;
+
+	/*
+	 * Allows for a textfield visibility to be changesd.
+	 */
+	public boolean txtVirtualMemorySizeIsVisible = false;
+
+	private JTextField txtMainMemorySize;
+	private JLabel lblVmSize;
+	private JLabel lblMmSize;
+
 	
 
 	/*
@@ -154,7 +185,7 @@ public class GUIPanel extends JPanel {
 	 * The setup method. This method instantiates all of the components.
 	 */
 	public void setup() {
-		this.setSize(800, 500);
+		this.setSize(1000, 500);
 		/*
 		 * Text Field instantiations; Command Line and # of Steps.
 		 */
@@ -232,11 +263,13 @@ public class GUIPanel extends JPanel {
 		add(lblExecutionSpeed);
 
 		lblMemoryUsed = new JLabel("Memory used: 0000/4096");
-		lblMemoryUsed.setBounds(20, 16, 218, 16);
+		lblMemoryUsed.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblMemoryUsed.setBounds(810, 16, 170, 16);
 		add(lblMemoryUsed);
 
 		lblMemoryAvailable = new JLabel("Memory Available: 4096");
-		lblMemoryAvailable.setBounds(613, 16, 151, 16);
+		lblMemoryAvailable.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblMemoryAvailable.setBounds(810, 33, 170, 16);
 		add(lblMemoryAvailable);
 
 		lblInputQueue = new JLabel("Ready Queue:");
@@ -244,7 +277,7 @@ public class GUIPanel extends JPanel {
 		add(lblInputQueue);
 
 		lblWaitingQueue = new JLabel("Waiting Queue:");
-		lblWaitingQueue.setBounds(285, 44, 95, 16);
+		lblWaitingQueue.setBounds(282, 44, 95, 16);
 		add(lblWaitingQueue);
 
 		lblFinishedProcesses = new JLabel("Finished Processes:");
@@ -262,28 +295,28 @@ public class GUIPanel extends JPanel {
 		clockLabel = new JLabel("000000");
 		clockLabel.setBounds(160, 344, 61, 16);
 		add(clockLabel);
-		
+
 		lblNumber = new JLabel("Number:");
 		lblNumber.setBounds(576, 465, 61, 16);
 		add(lblNumber);
-		
+
 		lblCurrentCpuProcess = new JLabel("CPU Process:");
 		lblCurrentCpuProcess.setBounds(542, 343, 141, 16);
 		add(lblCurrentCpuProcess);
-		
+
 		lblCurrentProcessName = new JLabel("");
 		lblCurrentProcessName.setBounds(631, 343, 159, 16);
 		add(lblCurrentProcessName);
-		
+
 		operationLabel = new JLabel("");
 		operationLabel.setBounds(631, 365, 123, 16);
 		add(operationLabel);
-		
+
 		/*
-		 * Values for the drop down combo box for the scheduler. 
+		 * Values for the drop down combo box for the scheduler.
 		 */
-		String[] dropDownSchedulers = {"Select a scheduler: ", "Round Robin", "FCFS"};
-		
+		String[] dropDownSchedulers = { "Select a scheduler: ", "Round Robin", "FCFS", "Priority" };
+
 		/*
 		 * Instantiating the drop down combo box for the schedulers
 		 */
@@ -291,37 +324,41 @@ public class GUIPanel extends JPanel {
 		schedulerSelecterCB.addItem(dropDownSchedulers[0]);
 		schedulerSelecterCB.addItem(dropDownSchedulers[1]);
 		schedulerSelecterCB.addItem(dropDownSchedulers[2]);
-		schedulerSelecterCB.setBounds(296, 12, 209, 27);
+		schedulerSelecterCB.addItem(dropDownSchedulers[3]);
+		schedulerSelecterCB.setBounds(12, 12, 258, 27);
 		add(schedulerSelecterCB);
 
 		/*
 		 * The action listener for the drop down scheduler menu.
 		 */
-		schedulerSelecterCB.addActionListener(new ActionListener(){
+		schedulerSelecterCB.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				String sched = schedulerSelecterCB.getSelectedItem().toString();
-				if (sched.equals("Round Robin")){
+				if (sched.equals("Round Robin")) {
 					schedulerIF = new RoundRobin(25, clock);
 					btnStart.setEnabled(true);
-				}
-				else if (sched.equals("FCFS")){
+				} else if (sched.equals("FCFS")) {
 					schedulerIF = new FCFS(clock);
 					btnStart.setEnabled(true);
+				} else if (sched.equals("Priority")) {
+					schedulerIF = new PriorityScheduler(clock);
+					btnStart.setEnabled(true);
 				}
-				
-			}
-			
-		});
-		
 
-		
+			}
+
+		});
+
 		/*
 		 * Table Headers
 		 */
 		String[] tableColumns = { "Process: ", "State", "Arrival: " };
+		String[] registerColumn = {"Process", "Page ID"};
+		String[] cacheColumn = {"Process", "Page ID"};
+		
 
 		/*
 		 * Mock 2D Arrays for JTable rows/columns
@@ -329,14 +366,20 @@ public class GUIPanel extends JPanel {
 		String[][] inputData = new String[50][3];
 		String[][] waitingData = new String[50][3];
 		String[][] finishedData = new String[50][3];
+		String[][] registerData = new String[50][2];
+		String[][] cacheData = new String[50][2];
 		for (int i = 0; i < 50; i++) {
 
 			inputData[i][0] = "-";
 			inputData[i][1] = "-";
 			inputData[i][2] = "-";
+			registerData[i][0] = "-";
+			registerData[i][1] = "-";
 			waitingData[i][0] = "-";
 			waitingData[i][1] = "-";
 			waitingData[i][2] = "-";
+			cacheData[i][0] = "-";
+			cacheData[i][1] = "-";
 			finishedData[i][0] = "-";
 			finishedData[i][1] = "-";
 			finishedData[i][2] = "-";
@@ -349,6 +392,8 @@ public class GUIPanel extends JPanel {
 		dTMInputQueue = new DefaultTableModel(inputData, tableColumns);
 		dTMWaitingQueue = new DefaultTableModel(waitingData, tableColumns);
 		dTMFinishedQueue = new DefaultTableModel(finishedData, tableColumns);
+		dTMRegisters = new DefaultTableModel(registerData, registerColumn);
+		dTMCache = new DefaultTableModel(cacheData, cacheColumn);
 
 		/*
 		 * Table setups
@@ -377,9 +422,76 @@ public class GUIPanel extends JPanel {
 		finishedScrollPane.setBounds(542, 69, 248, 262);
 		add(finishedScrollPane);
 		
+		registerTable = new JTable();
+		registerTable.setModel(dTMRegisters);
+		registerTable.setBounds(810, 69, 170, 262);
+		registerTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		registerScrollPane = new JScrollPane(registerTable);
+		registerScrollPane.setBounds(810, 69, 170, 81);
+		registerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		add(registerScrollPane);
+		
+		cacheTable = new JTable();
+		cacheTable.setModel(dTMCache);
+		cacheTable.setBounds(810, 164, 170, 167);
+		cacheTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		cacheScrollPane = new JScrollPane(cacheTable);
+		cacheScrollPane.setBounds(810, 164, 170, 167);
+		cacheScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		add(cacheScrollPane);
+		
+		
 		
 
+		chckbxUseVirtualMemory = new JCheckBox("Use Virtual Memory");
+		chckbxUseVirtualMemory.setBounds(278, 12, 154, 23);
+		add(chckbxUseVirtualMemory);
+
+		txtVirtualMemorySize = new JTextField();
+		txtVirtualMemorySize.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtVirtualMemorySize.setBounds(704, 11, 86, 26);
+		txtVirtualMemorySize.setVisible(false);
+		add(txtVirtualMemorySize);
+		txtVirtualMemorySize.setColumns(10);
 		
+		txtMainMemorySize = new JTextField();
+		txtMainMemorySize.setBounds(538, 11, 81, 26);
+		txtMainMemorySize.setVisible(false);
+		add(txtMainMemorySize);
+		txtMainMemorySize.setColumns(10);
+		
+		lblVmSize = new JLabel("VM Size:");
+		lblVmSize.setBounds(480, 16, 61, 16);
+		lblVmSize.setVisible(false);
+		add(lblVmSize);
+		
+		lblMmSize = new JLabel("MM Size:");
+		lblMmSize.setBounds(645, 16, 61, 16);
+		lblMmSize.setVisible(false);
+		add(lblMmSize);
+		
+		
+
+		chckbxUseVirtualMemory.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				System.out.println("Apple Checkbox: " + (e.getStateChange() == 1 ? "checked" : "unchecked"));
+				
+				if (txtVirtualMemorySizeIsVisible == false) {
+					txtVirtualMemorySize.setVisible(true);
+					txtMainMemorySize.setVisible(true);
+					lblVmSize.setVisible(true);
+					lblMmSize.setVisible(true);
+					txtVirtualMemorySizeIsVisible = true;
+				} else {
+					txtVirtualMemorySize.setVisible(false);
+					txtMainMemorySize.setVisible(false);
+					lblVmSize.setVisible(false);
+					lblMmSize.setVisible(false);
+					txtVirtualMemorySizeIsVisible = false;
+				}
+
+			}
+		});
 
 		/*
 		 * Adding actionListeners to the buttons
@@ -398,9 +510,8 @@ public class GUIPanel extends JPanel {
 		});
 
 		/*
-		 * This is the ActionListener for the command line enter button. It
-		 * checks to make sure that the input is not null and is of one of the
-		 * correct forms.
+		 * This is the ActionListener for the command line enter button. It checks to
+		 * make sure that the input is not null and is of one of the correct forms.
 		 */
 		btnCommandLineEnter.addActionListener(new ActionListener() {
 			@Override
@@ -433,9 +544,9 @@ public class GUIPanel extends JPanel {
 		});
 
 		/*
-		 * This is the actionListener for the step button. It is meant to set
-		 * the number of steps to execute. To step incrementally, enter 1. The
-		 * method will ensure that the input is an integer.
+		 * This is the actionListener for the step button. It is meant to set the number
+		 * of steps to execute. To step incrementally, enter 1. The method will ensure
+		 * that the input is an integer.
 		 */
 		btnStep.addActionListener(new ActionListener() {
 
@@ -464,12 +575,11 @@ public class GUIPanel extends JPanel {
 					try {
 						int num = Integer.parseInt(str);
 						for (int i = 0; i < num; i++) {
-							
+
 							long currentTime = System.currentTimeMillis();
 							Date date = new Date(currentTime); // if you really have long
 							String result = new SimpleDateFormat("ssSSS").format(date.getTime());
-							
-							
+
 							Process process = GenerateRandomProcess.generate("p" + result);
 							newProcesses.add(process);
 						}
@@ -507,9 +617,7 @@ public class GUIPanel extends JPanel {
 				setIsSteadyRun(true);
 
 			}
-
 		});
-
 	}
 
 	/*
@@ -534,6 +642,58 @@ public class GUIPanel extends JPanel {
 		dtm = new DefaultTableModel(data, headers);
 		table.setModel(dtm);
 	}
+
+	/*
+	 * Update Register Table
+	 */
+	public void updateRegisterTable(Register register, DefaultTableModel dtm, JTable table) {
+		try {
+		String[] header = {"Process", "Page ID"};
+		String[][] data = new String[50][2];
+		for (int i = 0; i < 50; i++) {
+			if (i < register.getSlots().length) {
+				data[i][0] = register.getSlots()[i].getProcess().getName();
+				data[i][1] = String.valueOf(register.getSlots()[i].getId());
+			}
+			else {
+				data[i][0] = "-";
+				data[i][1] = "-";
+			}
+		}
+		dtm = new DefaultTableModel(data, header);
+		table.setModel(dtm);
+		}catch(NullPointerException e) {
+			System.out.println("NullPointerException in register table updater.");
+		}
+	}
+	
+	/*
+	 * Update Cache Table
+	 */
+	public void updateCacheTable(Cache cache, DefaultTableModel dtm, JTable table) {
+		try {
+		String[] header = {"Process", "Page ID"};
+		String[][] data = new String[50][2];
+		int i = 0;
+		for (Page page : cache.getPages()) {
+			data[i][0] = page.getProcess().getName();
+			data[i][1] = String.valueOf(page.getId());
+			i++;
+		}
+		while (i < 50) {
+			data[i][0] = "-";
+			data[i][1] = "-";
+			i++;
+		}
+		
+		
+		dtm = new DefaultTableModel(data, header);
+		table.setModel(dtm);
+		}catch(NullPointerException e) {
+			System.out.println("Null Value in Cache Update");
+		}
+	}
+	
 	
 	/*
 	 * Getters and setters for the GUI variables.
@@ -634,13 +794,12 @@ public class GUIPanel extends JPanel {
 	public void setSchedulerIF(Scheduler schedulerIF) {
 		this.schedulerIF = schedulerIF;
 	}
-	
-	public Scheduler resetSchedulerIF(){
+
+	public Scheduler resetSchedulerIF() {
 		Scheduler si = null;
-		if (schedulerSelecterCB.getSelectedItem().toString().equals("Round Robin")){
-			si = new RoundRobin(25,clock);
-		}
-		else if (schedulerSelecterCB.getSelectedItem().toString().equals("FCFS")){
+		if (schedulerSelecterCB.getSelectedItem().toString().equals("Round Robin")) {
+			si = new RoundRobin(25, clock);
+		} else if (schedulerSelecterCB.getSelectedItem().toString().equals("FCFS")) {
 			si = new FCFS(clock);
 		}
 		return si;
@@ -693,6 +852,65 @@ public class GUIPanel extends JPanel {
 	public void setdTMFinishedQueue(DefaultTableModel dTMFinishedQueue) {
 		this.dTMFinishedQueue = dTMFinishedQueue;
 	}
+	
+	public boolean isTxtVirtualMemorySizeIsVisible() {
+		return txtVirtualMemorySizeIsVisible;
+	}
+
+	public void setTxtVirtualMemorySizeIsVisible(boolean txtVirtualMemorySizeIsVisible) {
+		this.txtVirtualMemorySizeIsVisible = txtVirtualMemorySizeIsVisible;
+	}
+
+	public JTable getRegisterTable() {
+		return registerTable;
+	}
+
+	public void setRegisterTable(JTable registerTable) {
+		this.registerTable = registerTable;
+	}
+
+	public DefaultTableModel getdTMRegisters() {
+		return dTMRegisters;
+	}
+
+	public void setdTMRegisters(DefaultTableModel dTMRegisters) {
+		this.dTMRegisters = dTMRegisters;
+	}
+
+	public JTextField getTxtVirtualMemorySize() {
+		return txtVirtualMemorySize;
+	}
+
+	public void setTxtVirtualMemorySize(JTextField txtVirtualMemorySize) {
+		this.txtVirtualMemorySize = txtVirtualMemorySize;
+	}
+
+	public JTextField getTxtMainMemorySize() {
+		return txtMainMemorySize;
+	}
+
+	public void setTxtMainMemorySize(JTextField txtMainMemorySize) {
+		this.txtMainMemorySize = txtMainMemorySize;
+	}
+
+	public JTable getCacheTable() {
+		return cacheTable;
+	}
+
+	public void setCacheTable(JTable cacheTable) {
+		this.cacheTable = cacheTable;
+	}
+
+	public DefaultTableModel getdTMCache() {
+		return dTMCache;
+	}
+
+	public void setdTMCache(DefaultTableModel dTMCache) {
+		this.dTMCache = dTMCache;
+	}
+	
+	
+	
 	
 	
 	

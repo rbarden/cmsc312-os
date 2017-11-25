@@ -1,6 +1,8 @@
 package scheduling;
 
 import hardware.Clock;
+import memory.MMU;
+import memory.MemoryManager;
 import process.Process;
 import process.State;
 
@@ -20,7 +22,10 @@ public class RoundRobin implements Scheduler {
 	private int timeQuantumRemaining;
 	private final String type = "Round Robin";
 	
-	Clock clock;
+	private Clock clock;
+	private MemoryManager mmu;
+
+	
 
 	/*
 	 * Constructor initializes time quantum and each of the queues
@@ -45,6 +50,7 @@ public class RoundRobin implements Scheduler {
 				totalMemoryUsed += newQueue.get(i).getProcessMemorySize();
 				newQueue.get(i).setProcessState(State.READY);
 				newQueue.get(i).setArrivalTime(clock.getClock());
+				mmu.allocate(newQueue.get(i));
 				readyQueue.add(newQueue.get(i));
 				rem.add(newQueue.get(i));
 			}
@@ -90,6 +96,7 @@ public class RoundRobin implements Scheduler {
 		} else if (p.getProcessState() == State.WAIT) {
 			enqueueWaitingQueue(p);
 		} else if (p.getProcessState() == State.EXIT) {
+			mmu.deallocate(p);
 			readyQueue.add(p);
 		}
 	}
@@ -232,6 +239,14 @@ public class RoundRobin implements Scheduler {
 	
 	public String getType(){
 		return type;
+	}
+	
+	public MemoryManager getMmu() {
+		return mmu;
+	}
+
+	public void setMMU(MemoryManager mmu) {
+		this.mmu = mmu;
 	}
 
 }

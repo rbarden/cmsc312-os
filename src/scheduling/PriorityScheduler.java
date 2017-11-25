@@ -1,57 +1,52 @@
 package scheduling;
 
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+
 import hardware.Clock;
-import memory.MMU;
 import memory.MemoryManager;
 import process.Process;
 import process.State;
 
-import java.util.ArrayList;
-
-public class FCFS implements Scheduler {
-
-	private ArrayList<Process> newQueue;
-	private ArrayList<Process> readyQueue;
+public class PriorityScheduler implements Scheduler {
+	private PriorityQueue<Process> readyQueue;
 	private ArrayList<Process> waitingQueue;
+	private ArrayList<Process> newQueue;
 
 	private int totalMemoryUsed = 0;
 	private int totalMemoryAvailable = 4096;
-	private final String type = "FCFS";
+	private final String type = "Priority Scheduler";
 	
 	private Clock clock;
 	private MemoryManager mmu;
-
 	
-
-	public FCFS(Clock c) {
+	public PriorityScheduler(Clock c) {
 		newQueue = new ArrayList<Process>();
-		readyQueue = new ArrayList<Process>();
+		readyQueue = new PriorityQueue<Process>();
 		waitingQueue = new ArrayList<Process>();
 		clock = c;
+	}
+	
+	@Override
+	public String getType() {
+		return this.type;
 	}
 
 	@Override
 	public Process getReadyProcess() {
-		Process p = readyQueue.remove(0);
-		p.setHasEnteredCPU(true);
-		return p;
+		return readyQueue.poll();
 	}
 
 	@Override
 	public void schedule(Process p) {
 		if (p.getProcessState() == State.READY) {
-			if (p.hasEnteredCPU()) {
-				readyQueue.add(0, p);
-			} else {
-				readyQueue.add(p);
-			}
+			readyQueue.add(p);		
 		} else if (p.getProcessState() == State.WAIT) {
 			waitingQueue.add(p);
 		} else if (p.getProcessState() == State.EXIT) {
 			mmu.deallocate(p);
 			readyQueue.add(p);
 		}
-
 	}
 
 	public void pollNewQueue() {
@@ -67,7 +62,7 @@ public class FCFS implements Scheduler {
 			}
 		}
 	}
-
+	
 	@Override
 	public Process updateScheduler() {
 		pollNewQueue();
@@ -97,22 +92,6 @@ public class FCFS implements Scheduler {
 
 		return terminated;
 	}
-	
-	public ArrayList<Process> updateWaitingProcesses(){
-		ArrayList<Process> toRemove = new ArrayList<>();
-		for (int i = 0; i < waitingQueue.size(); i++) {
-			if (waitingQueue.get(i).getIOTimeRemaining() == 0) {
-				waitingQueue.get(i).setProcessState(State.READY);
-				readyQueue.add(0, waitingQueue.get(i));
-				toRemove.add(waitingQueue.get(i));
-			} else {
-				waitingQueue.get(i).setProcessState(State.WAIT);
-				waitingQueue.get(i).derimentIOTimeReamaining();
-			}
-		}
-		waitingQueue.removeAll(toRemove);
-		return toRemove;
-	}
 
 	@Override
 	public void addNewProcess(Process p) {
@@ -122,6 +101,23 @@ public class FCFS implements Scheduler {
 	@Override
 	public int getMemoryUsed() {
 		return totalMemoryUsed;
+	}
+
+	@Override
+	public ArrayList<Process> updateWaitingProcesses() {
+		ArrayList<Process> toRemove = new ArrayList<>();
+		for (int i = 0; i < waitingQueue.size(); i++) {
+			if (waitingQueue.get(i).getIOTimeRemaining() == 0) {
+				waitingQueue.get(i).setProcessState(State.READY);
+				readyQueue.add(waitingQueue.get(i));
+				toRemove.add(waitingQueue.get(i));
+			} else {
+				waitingQueue.get(i).setProcessState(State.WAIT);
+				waitingQueue.get(i).derimentIOTimeReamaining();
+			}
+		}
+		waitingQueue.removeAll(toRemove);
+		return toRemove;
 	}
 
 	@Override
@@ -136,19 +132,14 @@ public class FCFS implements Scheduler {
 
 	@Override
 	public ArrayList<Process> getReadyQueue() {
-		return readyQueue;
-	}
-	
-	public String getType(){
-		return type;
-	}
-	
-	public MemoryManager getMmu() {
-		return mmu;
+		ArrayList<Process> list = new ArrayList<Process>();
+		list.addAll(readyQueue);
+		return list;
 	}
 
-	public void setMMU(MemoryManager mmu) {
-		this.mmu = mmu;
+	@Override
+	public void setMMU(MemoryManager m) {
+		this.mmu = m;
 	}
 
 }

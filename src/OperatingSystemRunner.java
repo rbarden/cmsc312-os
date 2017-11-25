@@ -1,5 +1,8 @@
 import hardware.CPU;
 import hardware.Clock;
+import memory.MMU;
+import memory.MMUVirtual;
+import memory.MemoryManager;
 import process.Process;
 import process.State;
 import scheduling.Scheduler;
@@ -21,6 +24,7 @@ public class OperatingSystemRunner extends JFrame {
 	public static Clock clock;
 	public static Scheduler scheduler;
 	public static CPU cpu;
+	public static MemoryManager mmu;
 
 	private static final long serialVersionUID = 1L;
 
@@ -31,6 +35,10 @@ public class OperatingSystemRunner extends JFrame {
 		scheduler = null;
 		cpu = new CPU(clock);
 		new OperatingSystemRunner(pan);
+		
+		
+		
+		
 
 		int executionSpeedSliderVal;
 
@@ -66,7 +74,7 @@ public class OperatingSystemRunner extends JFrame {
 	 */
 	public OperatingSystemRunner(JPanel p) {
 		add(p);
-		setSize(800, 520);
+		setSize(1000, 520);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,12 +86,23 @@ public class OperatingSystemRunner extends JFrame {
 	 * This method represents the loop of the operating system.
 	 */
 	public static void execute() throws InterruptedException {
-
+		/*
+		 * Initialize the MMU
+		 */
+		if (mmu == null) {
+			if (pan.isTxtVirtualMemorySizeIsVisible()) {
+				mmu = new MMUVirtual(Integer.parseInt(pan.getTxtVirtualMemorySize().getText()), Integer.parseInt(pan.getTxtMainMemorySize().getText()));
+			}
+			else {
+				mmu = new MMU();
+			}
+		}
 		/*
 		 * Initial scheduler setup
 		 */
 		if (scheduler == null) {
 			scheduler = pan.getSchedulerIF();
+			scheduler.setMMU(mmu);
 			if (scheduler.getType().equals("FCFS")) {
 				timeQuantum = 1;
 			} else if (scheduler.getType().equals("Round Robin")) {
@@ -148,14 +167,23 @@ public class OperatingSystemRunner extends JFrame {
 		int currentTimeQuantum = timeQuantum;
 		if (!scheduler.getReadyQueue().isEmpty()) {
 			Process p = scheduler.getReadyProcess();
-			System.out.println(p.getName());
 			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()){
+				mmu.load(p, cpu);
+				pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+				pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
 				executeCPU(currentTimeQuantum, p);
+			
+				
 			}else if(scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()){
 				
 			}else
 			{
+				mmu.load(p, cpu);
+				pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+				pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
 				executeCPU(currentTimeQuantum, p);
+				
+				
 			}
 				
 			if (!scheduler.getType().equals("FCFS")) {
@@ -177,7 +205,7 @@ public class OperatingSystemRunner extends JFrame {
 				finishedQueue.add(term);
 			}
 		} catch (NullPointerException n) {
-			// System.out.println("NPE for teminated processes.");
+			// System.out.println("NPE for terminated processes.");
 		}
 
 		/*
@@ -187,6 +215,7 @@ public class OperatingSystemRunner extends JFrame {
 		pan.setMemoryUsedLbl("Memory Used: " + String.format("%4d", memory.getMemoryUsed()) + "/4096");
 		pan.setLblMemoryAvailable("Memory Available: " + String.format("%4d", memory.getAvailableMemory()));
 
+		
 		updatePanelTables();
 	}
 

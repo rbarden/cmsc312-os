@@ -20,8 +20,8 @@ public class CPU {
 
 	private ArrayList<Process> newChildren = new ArrayList<>();
 
-	private Register register;
-	private Cache cache;
+	private Register register = new Register();
+	private Cache cache = new Cache();
 
 	private Clock clock;
 
@@ -56,7 +56,7 @@ public class CPU {
 				process.setProgramCounter(process.getProgramCounter() + 1);
 			} else if (splitComm[0].equals("out")) {
 				continueCurrentExecution = false;
-				output = splitComm[1] + " " + splitComm[2] + " " + splitComm[3] + " " + splitComm[4];
+				output = splitComm[1] + " " + splitComm[2] + " " + splitComm[3];
 				System.out.println(splitComm[1]);
 				process.setProcessState(State.READY);
 				process.setProgramCounter(process.getProgramCounter() + 1);

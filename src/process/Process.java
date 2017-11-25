@@ -3,8 +3,9 @@ package process;
 import memory.Page;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
-public class Process {
+public class Process implements Comparable<Process>{
 
 		public State processState = State.NEW;
 		public String name;
@@ -141,4 +142,21 @@ public class Process {
 		public void setAllocatedMemory(ArrayList<Page> allocatedMemory) {
 			this.allocatedMemory = allocatedMemory;
 		}
+
+		@Override
+		public int compareTo(Process o) {
+			int i = 0;
+			if (this.priority > o.priority) {
+				i = -1;
+			}
+			else if (this.priority < o.priority) {
+				i = 1;
+			}
+			else {
+				i = 0;
+			}
+			return i;
+		}
+
+	
 }

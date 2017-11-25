@@ -18,12 +18,14 @@ public class GenerateRandomProcess {
 
 		int numOfLines = ThreadLocalRandom.current().nextInt(50, 51);
 		int firstLineMemory = ThreadLocalRandom.current().nextInt(50, 101);
+		int secondLinePriority = ThreadLocalRandom.current().nextInt(1, 11);
 		pw.println(String.valueOf(firstLineMemory));
+		pw.println(String.valueOf(secondLinePriority));
 		int randLine;
 		for (int i = 1; i < numOfLines - 1; i++) {
 			randLine = ThreadLocalRandom.current().nextInt(1, 101);
 			if (randLine >=1 && randLine < 25){
-				pw.println("out Output From process.Process " + processName);
+				pw.println("out from process " + processName);
 			}
 			else if (randLine >= 25 && randLine < 50){
 				pw.println("io");

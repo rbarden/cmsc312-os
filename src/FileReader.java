@@ -47,7 +47,9 @@ public class FileReader {
 		ArrayList<String> arr = parseFile(openFile(str));
 		int mem = Integer.parseInt(arr.get(0).trim());
 		arr.remove(0);
-		return new Process(State.READY, pName, 0, 1, mem, 0, arr, false);
+		int priority =Integer.parseInt(arr.get(0).trim());
+		arr.remove(0);
+		return new Process(State.READY, pName, 0, priority, mem, 0, arr, false);
 	}
 	
 }

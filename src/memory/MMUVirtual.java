@@ -44,7 +44,8 @@ public class MMUVirtual implements MemoryManager {
     @Override
     public boolean allocate(Process process) {
         int memoryNeeded = process.getProcessMemorySize();
-
+        System.out.println("Memory Needed - " + memoryNeeded);
+        System.out.println("Free memory - " + getFreeMemorySize());
         if(memoryNeeded > getFreeMemorySize()) return false;
 
         ArrayList<Page> memoryToAllocate = new ArrayList<>();
@@ -54,7 +55,7 @@ public class MMUVirtual implements MemoryManager {
             memoryToAllocate.add(page);
         }
         process.setAllocatedMemory(memoryToAllocate);
-
+        System.out.println("Process Memory" + process.getAllocatedMemory().size());
         return true;
     }
 
