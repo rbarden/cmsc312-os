@@ -25,11 +25,12 @@ public class Memory {
         this.pages = new PriorityQueue<>(pages);
         this.freePages = new ArrayList<>(pages);
         
-    		for (int i = 0; i < pages; i++) {
-    			this.pages.add(new Page(-1));
-    			this.freePages.add(new Page(-1));
-    		}
-    		
+        for (int i = 0; i < pages; i++) {
+            this.pages.add(new Page(i));
+        }
+
+        this.freePages.addAll(this.pages);
+
         this.freePagesSize = pages;
     }
 
