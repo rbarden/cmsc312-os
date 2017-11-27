@@ -4,6 +4,7 @@ import hardware.Clock;
 import memory.MMU;
 import memory.MemoryManager;
 import process.Process;
+import process.Semaphore;
 import process.State;
 
 import java.util.ArrayList;
@@ -20,14 +21,15 @@ public class FCFS implements Scheduler {
 	
 	private Clock clock;
 	private MemoryManager mmu;
-
+	private ArrayList<Semaphore> semList;
 	
 
-	public FCFS(Clock c) {
+	public FCFS(Clock c, ArrayList<Semaphore> s) {
 		newQueue = new ArrayList<Process>();
 		readyQueue = new ArrayList<Process>();
 		waitingQueue = new ArrayList<Process>();
 		clock = c;
+		semList = s;
 	}
 
 	@Override
@@ -59,6 +61,9 @@ public class FCFS implements Scheduler {
 			if (newQueue.get(0).getProcessMemorySize() <= totalMemoryAvailable) {
 				totalMemoryAvailable -= newQueue.get(0).getProcessMemorySize();
 				totalMemoryUsed += newQueue.get(0).getProcessMemorySize();
+				
+				
+				
 				mmu.allocate(newQueue.get(0));
 				newQueue.get(0).setProcessState(State.READY);
 				newQueue.get(0).setArrivalTime(clock.getClock());
@@ -87,6 +92,18 @@ public class FCFS implements Scheduler {
 			}
 		}
 		readyQueue.removeAll(toRemoveTerm);
+		
+		for (Semaphore s : semList) {
+			if (s.getIntLock() == 0 && !(s.getProcessQueue().isEmpty())){
+				Process pFromSema = s.getProcessQueue().peek();
+				for (Process process : waitingQueue) {
+					if (pFromSema.getName().equals(process.getName())){
+						process.setProcessState(State.READY);
+						s.getProcessQueue().poll();
+					}
+				}
+			}
+		}
 
 		/*
 		 * If processes are in the waiting queue, they must be evaluated and

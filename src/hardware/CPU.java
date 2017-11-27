@@ -3,6 +3,7 @@ package hardware;
 import memory.Cache;
 import memory.Register;
 import process.Process;
+import process.Semaphore;
 import process.State;
 
 import java.util.ArrayList;
@@ -10,8 +11,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class CPU {
 	/*
-	 * A boolean to determine whether the quantum loop should continue or break, 
-	 * and a process. 
+	 * A boolean to determine whether the quantum loop should continue or break, and
+	 * a process.
 	 */
 	private boolean continueCurrentExecution = true;
 	private Process process;
@@ -19,19 +20,21 @@ public class CPU {
 	private String output = "";
 
 	private ArrayList<Process> newChildren = new ArrayList<>();
+	private ArrayList<Semaphore> semlist;
 
 	private Register register = new Register();
 	private Cache cache = new Cache();
 
 	private Clock clock;
 
-	public CPU(Clock clock) {
+	public CPU(Clock clock, ArrayList<Semaphore> semList) {
 		this.clock = clock;
+		this.semlist = semList;
 	}
 
 	/*
-	 * This hardware.CPU checks each process command from its original process file and executes its' commands
-	 * accordingly.
+	 * This hardware.CPU checks each process command from its original process file
+	 * and executes its' commands accordingly.
 	 */
 	public void run(Process p) {
 		process = p;
@@ -47,7 +50,8 @@ public class CPU {
 					process.setProcessState(State.READY);
 					process.setProgramCounter(process.getProgramCounter() + 1);
 				} else {
-					process.getProcessCommands().set(process.getProgramCounter(), "calculate," + String.valueOf(calcTimeRemaining - 1));
+					process.getProcessCommands().set(process.getProgramCounter(),
+							"calculate," + String.valueOf(calcTimeRemaining - 1));
 					process.setProcessState(State.READY);
 				}
 			} else if (splitComm[0].equals("exe")) {
@@ -60,6 +64,25 @@ public class CPU {
 				System.out.println(splitComm[1]);
 				process.setProcessState(State.READY);
 				process.setProgramCounter(process.getProgramCounter() + 1);
+			} else if (splitComm[0].equals("criticalsection")) {
+				int criticalSectionTimeRemaining = Integer.parseInt(splitComm[1].trim());
+				int whichSempahoreSlot = Integer.parseInt(p.getName().substring(1)) % 10;
+				process = semlist.get(whichSempahoreSlot).acquire(process);
+				output = "CRITICAL SECTION - " + whichSempahoreSlot;
+
+				if (!(process.getProcessState() == State.WAIT)) {
+					if (criticalSectionTimeRemaining == 0) {
+						continueCurrentExecution = false;
+						process.setProcessState(State.READY);
+						process.setProgramCounter(process.getProgramCounter() + 1);
+						process = semlist.get(whichSempahoreSlot).release(process);
+					} else {
+						process.getProcessCommands().set(process.getProgramCounter(),
+								"criticalsection," + String.valueOf(criticalSectionTimeRemaining - 1));
+						process.setProcessState(State.READY);
+					}
+				}
+
 			}
 
 		} else if (pComm.equals("io")) {
@@ -70,7 +93,7 @@ public class CPU {
 			process.setProgramCounter(process.getProgramCounter() + 1);
 		} else if (pComm.equals("yield")) {
 			processOperation = pComm;
-			continueCurrentExecution = false; 
+			continueCurrentExecution = false;
 			process.setProcessState(State.READY);
 			process.setProgramCounter(process.getProgramCounter() + 1);
 		}
@@ -91,7 +114,7 @@ public class CPU {
 	public boolean isContinueCurrentExecution() {
 		return continueCurrentExecution;
 	}
-	
+
 	public void setContinueCurrentExecution(boolean continueCurrentExecution) {
 		this.continueCurrentExecution = continueCurrentExecution;
 	}
@@ -111,7 +134,7 @@ public class CPU {
 	public void setProcessOperation(String processOperation) {
 		this.processOperation = processOperation;
 	}
-	
+
 	public String getOutput() {
 		return output;
 	}

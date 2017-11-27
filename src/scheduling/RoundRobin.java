@@ -4,6 +4,7 @@ import hardware.Clock;
 import memory.MMU;
 import memory.MemoryManager;
 import process.Process;
+import process.Semaphore;
 import process.State;
 
 import java.util.ArrayList;
@@ -24,18 +25,20 @@ public class RoundRobin implements Scheduler {
 	
 	private Clock clock;
 	private MemoryManager mmu;
+	private ArrayList<Semaphore> semList;
 
 	
 
 	/*
 	 * Constructor initializes time quantum and each of the queues
 	 */
-	public RoundRobin(int q, Clock c) {
+	public RoundRobin(int q, Clock c, ArrayList<Semaphore> s) {
 		readyQueue = new ArrayList<Process>();
 		waitingQueue = new ArrayList<Process>();
 		newQueue = new ArrayList<Process>();
 		TIME_QUANTUM = q;
 		clock = c;
+		semList = s;
 	}
 
 	/*
@@ -114,7 +117,7 @@ public class RoundRobin implements Scheduler {
 	 * process.
 	 */
 	public Process updateScheduler() {
-		System.out.println(clock.getClock());
+		
 		pollNewQueue();
 		Process terminated = null;
 		/*
@@ -130,6 +133,18 @@ public class RoundRobin implements Scheduler {
 				totalMemoryAvailable += p.getProcessMemorySize();
 				totalMemoryUsed -= p.getProcessMemorySize();
 
+			}
+		}
+		
+		for (Semaphore s : semList) {
+			if (s.getIntLock() == 0 && !(s.getProcessQueue().isEmpty())){
+				Process pFromSema = s.getProcessQueue().peek();
+				for (Process process : waitingQueue) {
+					if (pFromSema.getName().equals(process.getName())){
+						process.setProcessState(State.READY);
+						s.getProcessQueue().poll();
+					}
+				}
 			}
 		}
 		

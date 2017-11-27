@@ -3,6 +3,7 @@ import memory.Cache;
 import memory.Page;
 import memory.Register;
 import process.Process;
+import process.Semaphore;
 import scheduling.FCFS;
 import scheduling.PriorityScheduler;
 import scheduling.RoundRobin;
@@ -169,16 +170,17 @@ public class GUIPanel extends JPanel {
 	private JLabel lblVmSize;
 	private JLabel lblMmSize;
 
-	
+	private ArrayList<Semaphore> semList;
 
 	/*
 	 * The GUIPanel Constructor
 	 */
-	public GUIPanel(Clock c) {
+	public GUIPanel(Clock c, ArrayList<Semaphore> s) {
 		setLayout(null);
 		setup();
 		setVisible(true);
 		clock = c;
+		semList = s;
 	}
 
 	/*
@@ -338,13 +340,13 @@ public class GUIPanel extends JPanel {
 
 				String sched = schedulerSelecterCB.getSelectedItem().toString();
 				if (sched.equals("Round Robin")) {
-					schedulerIF = new RoundRobin(25, clock);
+					schedulerIF = new RoundRobin(25, clock, semList);
 					btnStart.setEnabled(true);
 				} else if (sched.equals("FCFS")) {
-					schedulerIF = new FCFS(clock);
+					schedulerIF = new FCFS(clock, semList);
 					btnStart.setEnabled(true);
 				} else if (sched.equals("Priority")) {
-					schedulerIF = new PriorityScheduler(clock);
+					schedulerIF = new PriorityScheduler(clock, semList);
 					btnStart.setEnabled(true);
 				}
 
@@ -798,9 +800,9 @@ public class GUIPanel extends JPanel {
 	public Scheduler resetSchedulerIF() {
 		Scheduler si = null;
 		if (schedulerSelecterCB.getSelectedItem().toString().equals("Round Robin")) {
-			si = new RoundRobin(25, clock);
+			si = new RoundRobin(25, clock, semList);
 		} else if (schedulerSelecterCB.getSelectedItem().toString().equals("FCFS")) {
-			si = new FCFS(clock);
+			si = new FCFS(clock, semList);
 		}
 		return si;
 	}

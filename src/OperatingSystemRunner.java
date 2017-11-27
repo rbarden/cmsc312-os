@@ -4,6 +4,7 @@ import memory.MMU;
 import memory.MMUVirtual;
 import memory.MemoryManager;
 import process.Process;
+import process.Semaphore;
 import process.State;
 import scheduling.Scheduler;
 
@@ -25,16 +26,25 @@ public class OperatingSystemRunner extends JFrame {
 	public static Scheduler scheduler;
 	public static CPU cpu;
 	public static MemoryManager mmu;
+	public static ArrayList<Semaphore> semaphoreList;
 
 	private static final long serialVersionUID = 1L;
 
 	public static void main(String[] args) {
 		clock = new Clock();
-		pan = new GUIPanel(clock);
 		memory = new Memory();
 		scheduler = null;
-		cpu = new CPU(clock);
+		semaphoreList = new ArrayList<Semaphore>();
+		pan = new GUIPanel(clock, semaphoreList);
+		
+		for (int i = 0; i < 10; i++) {
+			semaphoreList.add(new Semaphore());
+		}
+		
+		cpu = new CPU(clock, semaphoreList);
 		new OperatingSystemRunner(pan);
+		
+		
 		
 		
 		
@@ -169,8 +179,10 @@ public class OperatingSystemRunner extends JFrame {
 			Process p = scheduler.getReadyProcess();
 			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()){
 				mmu.load(p, cpu);
+				SwingUtilities.invokeLater(new Runnable(){public void run(){
 				pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
 				pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+				}});
 				executeCPU(currentTimeQuantum, p);
 			
 				
@@ -179,8 +191,10 @@ public class OperatingSystemRunner extends JFrame {
 			}else
 			{
 				mmu.load(p, cpu);
+				SwingUtilities.invokeLater(new Runnable(){public void run(){
 				pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
 				pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+				}});
 				executeCPU(currentTimeQuantum, p);
 				
 				
@@ -207,7 +221,7 @@ public class OperatingSystemRunner extends JFrame {
 		} catch (NullPointerException n) {
 			// System.out.println("NPE for terminated processes.");
 		}
-
+ 
 		/*
 		 * Updating the memory and setting the memory labels in the JPanel
 		 */

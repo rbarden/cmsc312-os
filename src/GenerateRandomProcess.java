@@ -33,9 +33,13 @@ public class GenerateRandomProcess {
 			else if (randLine >= 50 && randLine < 75){
 				pw.println("yield");
 			}
-			else if (randLine >= 75 && randLine < 101){
+			else if (randLine >= 75 && randLine < 97){
 				int numCalc = ThreadLocalRandom.current().nextInt(5, 76);
 				pw.println("calculate " + numCalc);
+			}
+			else if (randLine >= 98 && randLine < 101){
+				int numCalc = ThreadLocalRandom.current().nextInt(5, 51);
+				pw.println("criticalsection " + numCalc);
 			}
 		}
 		pw.println("exe " + processName);

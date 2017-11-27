@@ -3,7 +3,7 @@ package process;
 import memory.Page;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+
 
 public class Process implements Comparable<Process>{
 
@@ -19,6 +19,9 @@ public class Process implements Comparable<Process>{
 		public int arrivalTime;
 		public boolean hasEnteredCPU = false;
 		
+		private boolean semaphoreAcquired = false;
+		
+
 		public ArrayList<String> processCommands;
 
 		public Process parentProcess;
@@ -166,5 +169,13 @@ public class Process implements Comparable<Process>{
 
 		public void setParentProcess(Process parentProcess) {
 			this.parentProcess = parentProcess;
+		}
+		
+		public boolean isSemaphoreAcquired() {
+			return semaphoreAcquired;
+		}
+
+		public void setSemaphoreAcquired(boolean semaphoreAcquired) {
+			this.semaphoreAcquired = semaphoreAcquired;
 		}
 }

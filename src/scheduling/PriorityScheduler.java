@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
 import hardware.Clock;
 import memory.MemoryManager;
 import process.Process;
+import process.Semaphore;
 import process.State;
 
 public class PriorityScheduler implements Scheduler {
@@ -19,12 +20,14 @@ public class PriorityScheduler implements Scheduler {
 	
 	private Clock clock;
 	private MemoryManager mmu;
+	private ArrayList<Semaphore> semList;
 	
-	public PriorityScheduler(Clock c) {
+	public PriorityScheduler(Clock c, ArrayList<Semaphore> s) {
 		newQueue = new ArrayList<Process>();
 		readyQueue = new PriorityQueue<Process>();
 		waitingQueue = new ArrayList<Process>();
 		clock = c;
+		semList = s;
 	}
 	
 	@Override
@@ -83,6 +86,17 @@ public class PriorityScheduler implements Scheduler {
 		}
 		readyQueue.removeAll(toRemoveTerm);
 
+		for (Semaphore s : semList) {
+			if (s.getIntLock() == 0 && !(s.getProcessQueue().isEmpty())){
+				Process pFromSema = s.getProcessQueue().peek();
+				for (Process process : waitingQueue) {
+					if (pFromSema.getName().equals(process.getName())){
+						process.setProcessState(State.READY);
+						s.getProcessQueue().poll();
+					}
+				}
+			}
+		}
 		/*
 		 * If processes are in the waiting queue, they must be evaluated and
 		 * their IO values are decremented and if they equal 0, the process is
