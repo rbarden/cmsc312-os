@@ -44,9 +44,6 @@ public class MMUVirtual implements MemoryManager {
     @Override
     public boolean allocate(Process process) {
         int memoryNeeded = process.getProcessMemorySize();
-        System.out.println("Memory Needed - " + memoryNeeded);
-        System.out.println("Free memory - " + getFreeMemorySize());
-        if(memoryNeeded > getFreeMemorySize()) return false;
 
         ArrayList<Page> memoryToAllocate = new ArrayList<>();
 
@@ -56,10 +53,13 @@ public class MMUVirtual implements MemoryManager {
             for(Page page: parentMemory) {
                 if(new Random().nextInt(100) < 20) {
                     memoryNeeded++;
+                    continue;
                 }
                 memoryToAllocate.add(page);
             }
         }
+
+        if(memoryNeeded > getFreeMemorySize()) return false;
 
         for(int i = 0; i < memoryNeeded; i++) {
             Page page = virtualMemory.getFreePages().remove(0);
@@ -67,7 +67,6 @@ public class MMUVirtual implements MemoryManager {
             memoryToAllocate.add(page);
         }
         process.setAllocatedMemory(memoryToAllocate);
-        System.out.println("Process Memory" + process.getAllocatedMemory().size());
         return true;
     }
 
