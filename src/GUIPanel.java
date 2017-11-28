@@ -241,16 +241,6 @@ public class GUIPanel extends JPanel {
 		 * JSlider for execution speed
 		 */
 		slider = new JSlider(JSlider.HORIZONTAL, 5, 101, 5);
-		slider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				int value = slider.getValue();
-				System.out.println(value);
-
-			}
-
-		});
 		slider.setMajorTickSpacing(15);
 		slider.setMinorTickSpacing(5);
 		slider.setPaintTicks(true);
@@ -478,8 +468,6 @@ public class GUIPanel extends JPanel {
 
 		chckbxUseVirtualMemory.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
-				System.out.println("Apple Checkbox: " + (e.getStateChange() == 1 ? "checked" : "unchecked"));
-				
 				if (txtVirtualMemorySizeIsVisible == false) {
 					txtVirtualMemorySize.setVisible(true);
 					txtMainMemorySize.setVisible(true);
@@ -532,7 +520,6 @@ public class GUIPanel extends JPanel {
 				} else if (!str[0].trim().isEmpty()) {
 					if (str.length > 1) {
 						if (!str[1].trim().isEmpty()) {
-							System.out.println("Test");
 							setInputString(str[0].trim() + "," + str[1].trim());
 						}
 					} else {
@@ -561,7 +548,6 @@ public class GUIPanel extends JPanel {
 					try {
 						int num = Integer.parseInt(str);
 						setNumOfSteps(num);
-						System.out.println(num);
 					} catch (NumberFormatException im) {
 						JOptionPane.showMessageDialog(null, "The input must be an integer.");
 					}
@@ -647,7 +633,6 @@ public class GUIPanel extends JPanel {
 		dtm = new DefaultTableModel(data, headers);
 		table.setModel(dtm);
 		}catch(NullPointerException e) {
-			System.out.println("NullPointerException in the Cache Table");
 		}
 	}
 
@@ -671,10 +656,8 @@ public class GUIPanel extends JPanel {
 		dtm = new DefaultTableModel(data, header);
 		table.setModel(dtm);
 		}catch(NullPointerException e) {
-			System.out.println("NullPointerException in register table updater.");
 		}
 		catch(ConcurrentModificationException e) {
-			System.out.println("ConcurrentModificationException in register Update");
 		}
 	}
 	
@@ -701,9 +684,7 @@ public class GUIPanel extends JPanel {
 		dtm = new DefaultTableModel(data, header);
 		table.setModel(dtm);
 		}catch(NullPointerException e) {
-			System.out.println("Null Value in Cache Update");
 		}catch(ConcurrentModificationException e) {
-			System.out.println("ConcurrentModificationException in Cache Update");
 		}
 	}
 	
