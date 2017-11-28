@@ -1,6 +1,7 @@
 package scheduling;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.PriorityQueue;
 
 import hardware.Clock;
@@ -22,9 +23,11 @@ public class PriorityScheduler implements Scheduler {
 	private MemoryManager mmu;
 	private ArrayList<Semaphore> semList;
 	
+	private int lastClock = 0;
+	
 	public PriorityScheduler(Clock c, ArrayList<Semaphore> s) {
 		newQueue = new ArrayList<Process>();
-		readyQueue = new PriorityQueue<Process>();
+		readyQueue = new PriorityQueue<Process>(20, (a,b) -> b.getPriority() - a.getPriority());
 		waitingQueue = new ArrayList<Process>();
 		clock = c;
 		semList = s;
@@ -68,14 +71,33 @@ public class PriorityScheduler implements Scheduler {
 	
 	@Override
 	public Process updateScheduler() {
+		int clockdifference = clock.getClock() - lastClock;
+		lastClock = clock.getClock();
+		
 		pollNewQueue();
 		Process terminated = null;
 		/*
 		 * The hardware.CPU will allow for processes to be rescheduled with a status of
 		 * EXIT. These processes are removed here.
+		 * 
+		 * This is also where the Aging is implemented; The agingCounter for each 
+		 * process is set to the clock here. If any process has remained for more than 
+		 * 2000 clock cycles, it's priority is increased. 
 		 */
+		System.out.println("Clock - - " + clock.getClock());
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
+
+			p.setAgingCounter(p.getAgingCounter() + clockdifference);
+			if (p.getAgingCounter() > 2000 && p.getPriority() < 10) {
+				System.out.println("Aging Counter Update on " + p.getName());
+				System.out.println(p.getPriority());
+				p.setPriority(p.getPriority() + 1);
+				System.out.println(p.getPriority());
+				System.out.println(p.getAgingCounter());
+				p.setAgingCounter(0);
+			}
+			
 			if (p.getProcessState() == State.EXIT) {
 				System.out.println("process.Process Removed Ready");
 				terminated = p;
@@ -148,6 +170,7 @@ public class PriorityScheduler implements Scheduler {
 	public ArrayList<Process> getReadyQueue() {
 		ArrayList<Process> list = new ArrayList<Process>();
 		list.addAll(readyQueue);
+		Collections.sort(list);
 		return list;
 	}
 

@@ -36,27 +36,21 @@ public class OperatingSystemRunner extends JFrame {
 		scheduler = null;
 		semaphoreList = new ArrayList<Semaphore>();
 		pan = new GUIPanel(clock, semaphoreList);
-		
+
 		for (int i = 0; i < 10; i++) {
 			semaphoreList.add(new Semaphore());
 		}
-		
+
 		cpu = new CPU(clock, semaphoreList);
 		new OperatingSystemRunner(pan);
-		
-		
-		
-		
-		
-		
 
 		int executionSpeedSliderVal;
 
 		/*
-		 * This is the beginning of the main loop. It begins by getting the
-		 * value of the slider which determines execution speed. It updates the
-		 * GUIPanel clock label, and checks to see if the reset button was
-		 * clicked. It then checks the command line input, and manages that.
+		 * This is the beginning of the main loop. It begins by getting the value of the
+		 * slider which determines execution speed. It updates the GUIPanel clock label,
+		 * and checks to see if the reset button was clicked. It then checks the command
+		 * line input, and manages that.
 		 */
 		try {
 			while (true) {
@@ -101,9 +95,9 @@ public class OperatingSystemRunner extends JFrame {
 		 */
 		if (mmu == null) {
 			if (pan.isTxtVirtualMemorySizeIsVisible()) {
-				mmu = new MMUVirtual(Integer.parseInt(pan.getTxtVirtualMemorySize().getText()), Integer.parseInt(pan.getTxtMainMemorySize().getText()));
-			}
-			else {
+				mmu = new MMUVirtual(Integer.parseInt(pan.getTxtVirtualMemorySize().getText()),
+						Integer.parseInt(pan.getTxtMainMemorySize().getText()));
+			} else {
 				mmu = new MMU();
 			}
 		}
@@ -147,8 +141,8 @@ public class OperatingSystemRunner extends JFrame {
 		}
 
 		/*
-		 * Check for new processes, if the exist, add them and schedule them.
-		 * Set the memory for them.
+		 * Check for new processes, if the exist, add them and schedule them. Set the
+		 * memory for them.
 		 */
 		if (!pan.getNewProcesses().isEmpty()) {
 			for (Process p : pan.getNewProcesses()) {
@@ -159,47 +153,47 @@ public class OperatingSystemRunner extends JFrame {
 			}
 			pan.emptyNewProcessArray();
 		}
-		
-		
 
 		updatePanelTables();
 
 		/*
-		 * This begins the main 'cpu loop'; While the time quantum has not
-		 * expired, and cpu.isContinueCurrentExecution() (This is a boolean
-		 * value that is switched on the condition that the calculate time
-		 * expire, or any other interrupt occurs) is true: The CPU is run on the
-		 * process. Time quantum is decremented, and the clock incremented.
+		 * This begins the main 'cpu loop'; While the time quantum has not expired, and
+		 * cpu.isContinueCurrentExecution() (This is a boolean value that is switched on
+		 * the condition that the calculate time expire, or any other interrupt occurs)
+		 * is true: The CPU is run on the process. Time quantum is decremented, and the
+		 * clock incremented.
 		 * 
-		 * The thread is allowed to sleep for each loop for a seam-less
-		 * execution, although I question if this is necessary.
+		 * The thread is allowed to sleep for each loop for a seam-less execution,
+		 * although I question if this is necessary.
 		 */
 		int currentTimeQuantum = timeQuantum;
 		if (!scheduler.getReadyQueue().isEmpty()) {
 			Process p = scheduler.getReadyProcess();
-			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()){
+			p.setAgingCounter(0);
+			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()) {
 				mmu.load(p, cpu);
-				SwingUtilities.invokeLater(new Runnable(){public void run(){
-				pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
-				pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
-				}});
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+					}
+				});
 				executeCPU(currentTimeQuantum, p);
-			
-				
-			}else if(scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()){
-				
-			}else
-			{
+
+			} else if (scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()) {
+
+			} else {
 				mmu.load(p, cpu);
-				SwingUtilities.invokeLater(new Runnable(){public void run(){
-				pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
-				pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
-				}});
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+					}
+				});
 				executeCPU(currentTimeQuantum, p);
-				
-				
+
 			}
-				
+
 			if (!scheduler.getType().equals("FCFS")) {
 				pan.getLblCurrentProcessName().setText("");
 				pan.getOperationLabel().setText("");
@@ -210,8 +204,8 @@ public class OperatingSystemRunner extends JFrame {
 
 		/*
 		 * If any process was selected for removal, it is returned by the
-		 * updateScheduler method and added to the finishedQueue which is used
-		 * to populate the finished table.
+		 * updateScheduler method and added to the finishedQueue which is used to
+		 * populate the finished table.
 		 */
 		try {
 			Process term = scheduler.updateScheduler();
@@ -221,7 +215,7 @@ public class OperatingSystemRunner extends JFrame {
 		} catch (NullPointerException n) {
 			// System.out.println("NPE for terminated processes.");
 		}
- 
+
 		/*
 		 * Updating the memory and setting the memory labels in the JPanel
 		 */
@@ -229,7 +223,6 @@ public class OperatingSystemRunner extends JFrame {
 		pan.setMemoryUsedLbl("Memory Used: " + String.format("%4d", memory.getMemoryUsed()) + "/4096");
 		pan.setLblMemoryAvailable("Memory Available: " + String.format("%4d", memory.getAvailableMemory()));
 
-		
 		updatePanelTables();
 	}
 
@@ -246,14 +239,14 @@ public class OperatingSystemRunner extends JFrame {
 			}
 		});
 	}
-	
+
 	/*
-	 * This is the execute method to death with processes moving through the CPU
-	 * The inner if condition exists so that processes run for time quantum while
-	 * incrementing the clock in Round Robin. This statement is skipped when the FCFS
-	 * scheduler is being used. 
+	 * This is the execute method to death with processes moving through the CPU The
+	 * inner if condition exists so that processes run for time quantum while
+	 * incrementing the clock in Round Robin. This statement is skipped when the
+	 * FCFS scheduler is being used.
 	 */
-	public static void executeCPU(int continuousTimeQuantum, Process p) throws InterruptedException{
+	public static void executeCPU(int continuousTimeQuantum, Process p) throws InterruptedException {
 		pan.getLblCurrentProcessName().setText(p.getName());
 		while (continuousTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
 			cpu.run(p);
@@ -263,10 +256,10 @@ public class OperatingSystemRunner extends JFrame {
 				clock.incrementClock();
 				pan.setClockLbl(String.format("%06d", clock.getClock()));
 				Thread.sleep(1000 / pan.getSliderValue());
-				scheduler.updateWaitingProcesses();	
+				scheduler.updateWaitingProcesses();
 				updatePanelTables();
 			}
-			
+
 		}
 		if (!cpu.getOutput().isEmpty()) {
 			pan.setConsole("Output: " + cpu.getOutput() + " on clock cycle " + clock.getClock());
@@ -322,8 +315,8 @@ public class OperatingSystemRunner extends JFrame {
 	}
 
 	/*
-	 * This method opens a JOptionPan showing all of the processes that have
-	 * entered the system but have not yet terminated.
+	 * This method opens a JOptionPan showing all of the processes that have entered
+	 * the system but have not yet terminated.
 	 */
 	public static void proc() {
 		String tot = "";

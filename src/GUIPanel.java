@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.InputMismatchException;
 import javax.swing.JButton;
@@ -626,6 +627,7 @@ public class GUIPanel extends JPanel {
 	 * 
 	 */
 	public void updateQueueTable(ArrayList<Process> pArr, DefaultTableModel dtm, JTable table) {
+		try {
 		String[] headers = { "Process: ", "State", "Arrival: " };
 		String[][] data = new String[50][3];
 		for (int i = 0; i < 50; i++) {
@@ -643,6 +645,9 @@ public class GUIPanel extends JPanel {
 		}
 		dtm = new DefaultTableModel(data, headers);
 		table.setModel(dtm);
+		}catch(NullPointerException e) {
+			System.out.println("NullPointerException in the Cache Table");
+		}
 	}
 
 	/*
@@ -666,6 +671,9 @@ public class GUIPanel extends JPanel {
 		table.setModel(dtm);
 		}catch(NullPointerException e) {
 			System.out.println("NullPointerException in register table updater.");
+		}
+		catch(ConcurrentModificationException e) {
+			System.out.println("ConcurrentModificationException in register Update");
 		}
 	}
 	
@@ -693,6 +701,8 @@ public class GUIPanel extends JPanel {
 		table.setModel(dtm);
 		}catch(NullPointerException e) {
 			System.out.println("Null Value in Cache Update");
+		}catch(ConcurrentModificationException e) {
+			System.out.println("ConcurrentModificationException in Cache Update");
 		}
 	}
 	

@@ -18,7 +18,7 @@ public class Process implements Comparable<Process>{
 		public int iOTimeRemaining;
 		public int arrivalTime;
 		public boolean hasEnteredCPU = false;
-		
+		private int agingCounter = 0;
 		private boolean semaphoreAcquired = false;
 		
 
@@ -178,4 +178,18 @@ public class Process implements Comparable<Process>{
 		public void setSemaphoreAcquired(boolean semaphoreAcquired) {
 			this.semaphoreAcquired = semaphoreAcquired;
 		}
+
+		public int getAgingCounter() {
+			return agingCounter;
+		}
+
+		public void setAgingCounter(int agingCounter) {
+			this.agingCounter = agingCounter;
+		}
+
+		public boolean isHasEnteredCPU() {
+			return hasEnteredCPU;
+		}
+		
+		
 }
