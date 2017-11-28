@@ -61,7 +61,6 @@ public class CPU {
 			} else if (splitComm[0].equals("out")) {
 				continueCurrentExecution = false;
 				output = splitComm[1] + " " + splitComm[2] + " " + splitComm[3];
-				System.out.println(splitComm[1]);
 				process.setProcessState(State.READY);
 				process.setProgramCounter(process.getProgramCounter() + 1);
 			} else if (splitComm[0].equals("criticalsection")) {
