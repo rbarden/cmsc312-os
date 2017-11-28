@@ -210,7 +210,6 @@ public class OperatingSystemRunner extends JFrame {
 				finishedQueue.add(term);
 			}
 		} catch (NullPointerException n) {
-			// System.out.println("NPE for terminated processes.");
 		}
 
 		/*
@@ -303,7 +302,6 @@ public class OperatingSystemRunner extends JFrame {
 				System.exit(0);
 				break;
 			case "exe":
-				System.out.println("exe");
 				break;
 			}
 		}
