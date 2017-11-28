@@ -450,18 +450,19 @@ public class GUIPanel extends JPanel {
 		chckbxUseVirtualMemory.setBounds(278, 12, 154, 23);
 		add(chckbxUseVirtualMemory);
 
-		txtVirtualMemorySize = new JTextField();
-		txtVirtualMemorySize.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtVirtualMemorySize.setBounds(704, 11, 86, 26);
-		txtVirtualMemorySize.setVisible(false);
-		add(txtVirtualMemorySize);
-		txtVirtualMemorySize.setColumns(10);
-		
 		txtMainMemorySize = new JTextField();
-		txtMainMemorySize.setBounds(538, 11, 81, 26);
+		txtMainMemorySize.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtMainMemorySize.setBounds(704, 11, 86, 26);
 		txtMainMemorySize.setVisible(false);
 		add(txtMainMemorySize);
 		txtMainMemorySize.setColumns(10);
+		
+		txtVirtualMemorySize = new JTextField();
+		txtVirtualMemorySize.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtVirtualMemorySize.setBounds(538, 11, 81, 26);
+		txtVirtualMemorySize.setVisible(false);
+		add(txtVirtualMemorySize);
+		txtVirtualMemorySize.setColumns(10);
 		
 		lblVmSize = new JLabel("VM Size:");
 		lblVmSize.setBounds(480, 16, 61, 16);

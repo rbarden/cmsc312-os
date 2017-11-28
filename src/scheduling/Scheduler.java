@@ -33,12 +33,6 @@ public interface Scheduler {
 	 */
 	void addNewProcess(Process p);
 	
-	
-	/*
-	 * Method to return the amount of memory currently allocated
-	 */
-	int getMemoryUsed();
-	
 	/*
 	 * A method to update the waiting queue
 	 */

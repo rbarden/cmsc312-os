@@ -41,7 +41,7 @@ public class Page implements Comparable {
     }
     
     public String toString() {
-    		return this.process.getName() + " " + this.id; 
+    		return "Process" + this.id;
     }
 
 	public int getId() {

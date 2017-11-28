@@ -83,7 +83,7 @@ public class MMUVirtual implements MemoryManager {
     @Override
     public boolean load(Process process, CPU cpu) {
         Cache cache = cpu.getCache();
-        PriorityQueue<Page> cachePages = cpu.getCache().getPages();
+        PriorityQueue<Page> cachePages = cache.getPages();
 
         PriorityQueue<Page> memoryPages = mainMemory.getPages();
 
@@ -98,7 +98,7 @@ public class MMUVirtual implements MemoryManager {
 
                 if (cachePages.contains(page) && memoryPages.contains(page)) continue;
 
-                if (cachePages.contains(page) && !memoryPages.contains(page)) {
+                if (!memoryPages.contains(page)) {
                     if(mainMemory.getFreePagesSize() > 0) {
                         memoryPages.add(page);
                         mainMemory.setFreePagesSize(mainMemory.getFreePagesSize() - 1);
@@ -108,15 +108,7 @@ public class MMUVirtual implements MemoryManager {
                     memoryPages.add(page);
                 }
 
-                if(!cachePages.contains(page) && !memoryPages.contains(page)) {
-                    if(mainMemory.getFreePagesSize() > 0) {
-                        memoryPages.add(page);
-                        mainMemory.setFreePagesSize(mainMemory.getFreePagesSize() - 1);
-                    }
-
-                    memoryPages.poll();
-                    memoryPages.add(page);
-
+                if(!cachePages.contains(page)) {
                     if (cache.getFreePages() > 0) {
                         cachePages.add(page);
                         cache.setFreePages(cache.getFreePages() - 1);

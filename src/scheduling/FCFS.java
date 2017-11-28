@@ -15,8 +15,6 @@ public class FCFS implements Scheduler {
 	private ArrayList<Process> readyQueue;
 	private ArrayList<Process> waitingQueue;
 
-	private int totalMemoryUsed = 0;
-	private int totalMemoryAvailable = 4096;
 	private final String type = "FCFS";
 	
 	private Clock clock;
@@ -58,17 +56,11 @@ public class FCFS implements Scheduler {
 
 	public void pollNewQueue() {
 		if (!newQueue.isEmpty()) {
-			if (newQueue.get(0).getProcessMemorySize() <= totalMemoryAvailable) {
-				totalMemoryAvailable -= newQueue.get(0).getProcessMemorySize();
-				totalMemoryUsed += newQueue.get(0).getProcessMemorySize();
-				
-				
-				
-				mmu.allocate(newQueue.get(0));
-				newQueue.get(0).setProcessState(State.READY);
-				newQueue.get(0).setArrivalTime(clock.getClock());
-				readyQueue.add(newQueue.get(0));
-				newQueue.remove(0);
+			Process process = newQueue.remove(0);
+			if (mmu.allocate(process)) {
+				process.setProcessState(State.READY);
+				process.setArrivalTime(clock.getClock());
+				readyQueue.add(process);
 			}
 		}
 	}
@@ -84,11 +76,9 @@ public class FCFS implements Scheduler {
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 			if (p.getProcessState() == State.EXIT) {
-				System.out.println("process.Process Removed Ready");
+				System.out.println("Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
-				totalMemoryAvailable += p.getProcessMemorySize();
-				totalMemoryUsed -= p.getProcessMemorySize();
 			}
 		}
 		readyQueue.removeAll(toRemoveTerm);
@@ -134,11 +124,6 @@ public class FCFS implements Scheduler {
 	@Override
 	public void addNewProcess(Process p) {
 		newQueue.add(p);
-	}
-
-	@Override
-	public int getMemoryUsed() {
-		return totalMemoryUsed;
 	}
 
 	@Override

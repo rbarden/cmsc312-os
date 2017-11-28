@@ -17,8 +17,6 @@ public class RoundRobin implements Scheduler {
 	private ArrayList<Process> waitingQueue;
 	private ArrayList<Process> newQueue;
 
-	private int totalMemoryUsed = 0;
-	private int totalMemoryAvailable = 4096;
 	private final int TIME_QUANTUM;
 	private int timeQuantumRemaining;
 	private final String type = "Round Robin";
@@ -46,20 +44,14 @@ public class RoundRobin implements Scheduler {
 	 * any processes in the queue will be added to the ready queue. 
 	 */
 	public void pollNewQueue() {
-		ArrayList<Process> rem = new ArrayList<Process>();
-		for (int i = 0; i < newQueue.size(); i++) {
-			if (newQueue.get(i).getProcessMemorySize() <= totalMemoryAvailable) {
-				totalMemoryAvailable -= newQueue.get(i).getProcessMemorySize();
-				totalMemoryUsed += newQueue.get(i).getProcessMemorySize();
-				newQueue.get(i).setProcessState(State.READY);
-				newQueue.get(i).setArrivalTime(clock.getClock());
-				mmu.allocate(newQueue.get(i));
-				readyQueue.add(newQueue.get(i));
-				rem.add(newQueue.get(i));
+		if (!newQueue.isEmpty()) {
+			Process process = newQueue.remove(0);
+			if (mmu.allocate(process)) {
+				process.setProcessState(State.READY);
+				process.setArrivalTime(clock.getClock());
+				readyQueue.add(process);
 			}
-
 		}
-		newQueue.removeAll(rem);
 	}
 
 	public void addNewProcess(Process p) {
@@ -130,9 +122,6 @@ public class RoundRobin implements Scheduler {
 				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
-				totalMemoryAvailable += p.getProcessMemorySize();
-				totalMemoryUsed -= p.getProcessMemorySize();
-
 			}
 		}
 		
@@ -234,22 +223,6 @@ public class RoundRobin implements Scheduler {
 
 	public int getTIME_QUANTUM() {
 		return TIME_QUANTUM;
-	}
-
-	public void settotalMemoryUsed(int totalMemoryUsed) {
-		this.totalMemoryUsed = totalMemoryUsed;
-	}
-
-	public int getMemoryUsed() {
-		return totalMemoryUsed;
-	}
-
-	public int getTotalMemoryAvailable() {
-		return totalMemoryAvailable;
-	}
-
-	public void setTotalMemoryAvailable(int totalMemoryAvailable) {
-		this.totalMemoryAvailable = totalMemoryAvailable;
 	}
 	
 	public String getType(){

@@ -21,7 +21,6 @@ public class OperatingSystemRunner extends JFrame {
 	public static int timeQuantum = 25;
 
 	public static GUIPanel pan;
-	public static Memory memory;
 	public static Clock clock;
 	public static Scheduler scheduler;
 	public static CPU cpu;
@@ -32,7 +31,6 @@ public class OperatingSystemRunner extends JFrame {
 
 	public static void main(String[] args) {
 		clock = new Clock();
-		memory = new Memory();
 		scheduler = null;
 		semaphoreList = new ArrayList<Semaphore>();
 		pan = new GUIPanel(clock, semaphoreList);
@@ -149,7 +147,6 @@ public class OperatingSystemRunner extends JFrame {
 				p.setProcessState(State.NEW);
 				scheduler.addNewProcess(p);
 				scheduler.schedule(p);
-				memory.setMemoryUsed(scheduler.getMemoryUsed());
 			}
 			pan.emptyNewProcessArray();
 		}
@@ -219,9 +216,8 @@ public class OperatingSystemRunner extends JFrame {
 		/*
 		 * Updating the memory and setting the memory labels in the JPanel
 		 */
-		memory.setMemoryUsed(scheduler.getMemoryUsed());
-		pan.setMemoryUsedLbl("Memory Used: " + String.format("%4d", memory.getMemoryUsed()) + "/4096");
-		pan.setLblMemoryAvailable("Memory Available: " + String.format("%4d", memory.getAvailableMemory()));
+		pan.setMemoryUsedLbl("Memory Used: " + String.format("%4d/%4d", (mmu.getTotalMemorySize() - mmu.getFreeMemorySize()), mmu.getTotalMemorySize()));
+		pan.setLblMemoryAvailable("Memory Available: " + String.format("%4d", mmu.getFreeMemorySize()));
 
 		updatePanelTables();
 	}
@@ -290,8 +286,8 @@ public class OperatingSystemRunner extends JFrame {
 				proc();
 				break;
 			case "mem":
-				String memString = "The amount of memory used: " + memory.getMemoryUsed()
-						+ "\nThe amount of memory available: " + memory.getAvailableMemory();
+				String memString = "The amount of memory used: " + (mmu.getTotalMemorySize() - mmu.getFreeMemorySize())
+						+ "\nThe amount of memory available: " + mmu.getFreeMemorySize();
 				JOptionPane.showMessageDialog(null, memString);
 				break;
 			case "reset":
