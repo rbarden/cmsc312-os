@@ -25,6 +25,17 @@ public class Process implements Comparable<Process>{
 		public ArrayList<String> processCommands;
 
 		public Process parentProcess;
+
+		public Process(Process parentProcess) {
+			this.parentProcess = parentProcess;
+			this.processState = parentProcess.getProcessState();
+			this.name = parentProcess.getName();
+			this.programCounter = parentProcess.getProgramCounter();
+			this.priority = parentProcess.getPriority();
+			this.processMemorySize = parentProcess.getProcessMemorySize();
+			this.iOTimeRemaining = parentProcess.getiOTimeRemaining();
+			this.processCommands = parentProcess.getProcessCommands();
+		}
 		
 		public Process(State processState, String name, int programCounter, int priority, int processMemorySize,
 					   int iOTimeRemaining, ArrayList<String> processCommands, boolean blockedStatus, Process parentProcess) {
