@@ -119,7 +119,6 @@ public class RoundRobin implements Scheduler {
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 			if (p.getProcessState() == State.EXIT) {
-				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
 			}

@@ -76,7 +76,6 @@ public class FCFS implements Scheduler {
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 			if (p.getProcessState() == State.EXIT) {
-				System.out.println("Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
 			}

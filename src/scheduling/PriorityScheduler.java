@@ -79,22 +79,16 @@ public class PriorityScheduler implements Scheduler {
 		 * process is set to the clock here. If any process has remained for more than 
 		 * 2000 clock cycles, it's priority is increased. 
 		 */
-		System.out.println("Clock - - " + clock.getClock());
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 
 			p.setAgingCounter(p.getAgingCounter() + clockdifference);
 			if (p.getAgingCounter() > 2000 && p.getPriority() < 10) {
-				System.out.println("Aging Counter Update on " + p.getName());
-				System.out.println(p.getPriority());
 				p.setPriority(p.getPriority() + 1);
-				System.out.println(p.getPriority());
-				System.out.println(p.getAgingCounter());
 				p.setAgingCounter(0);
 			}
 			
 			if (p.getProcessState() == State.EXIT) {
-				System.out.println("process.Process Removed Ready");
 				terminated = p;
 				toRemoveTerm.add(p);
 			}
