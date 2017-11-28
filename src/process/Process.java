@@ -1,6 +1,7 @@
 package process;
 
 import memory.Page;
+import memory.Port;
 
 import java.util.ArrayList;
 
@@ -26,10 +27,12 @@ public class Process implements Comparable<Process>{
 
 		public Process parentProcess;
 
+		private Port communicationPort;
+
 		public Process(Process parentProcess) {
 			this.parentProcess = parentProcess;
-			this.processState = parentProcess.getProcessState();
-			this.name = parentProcess.getName();
+			this.processState = State.NEW;
+			this.name = parentProcess.getName() + "c";
 			this.programCounter = parentProcess.getProgramCounter();
 			this.priority = parentProcess.getPriority();
 			this.processMemorySize = parentProcess.getProcessMemorySize();
@@ -201,6 +204,12 @@ public class Process implements Comparable<Process>{
 		public boolean isHasEnteredCPU() {
 			return hasEnteredCPU;
 		}
-		
-		
+
+		public Port getCommunicationPort() {
+			return communicationPort;
+		}
+
+		public void setCommunicationPort(Port communicationPort) {
+			this.communicationPort = communicationPort;
+		}
 }

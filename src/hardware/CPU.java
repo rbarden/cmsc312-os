@@ -1,6 +1,7 @@
 package hardware;
 
 import memory.Cache;
+import memory.Port;
 import memory.Register;
 import process.Process;
 import process.Semaphore;
@@ -101,9 +102,11 @@ public class CPU {
 			process.setProgramCounter(process.getProgramCounter() + 1);
 		} else if (pComm.equals("fork")) {
 			Process child = new Process(process);
-			
+			new Port(process, child);
+			child.setProgramCounter(child.getProgramCounter() + 1);
 			newChildren.add(child);
 			process.setProcessState(State.WAIT);
+			process.setProgramCounter(process.getProgramCounter() + 1);
 		}
 
 	}
