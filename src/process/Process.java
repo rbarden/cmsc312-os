@@ -124,7 +124,7 @@ public class Process implements Comparable<Process>{
 
 		@Override
 		public String toString() {
-			return "process.State: " + processState + ", Name: " + name + ", PC: " + programCounter
+			return "State: " + processState + ", Name: " + name + ", PC: " + programCounter
 					+ ", PR: " + priority + ", MEM: " + processMemorySize + ", IOTR: "
 					+ iOTimeRemaining + ", AT: " + arrivalTime 
 					+ "]";

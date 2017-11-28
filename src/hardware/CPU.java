@@ -63,6 +63,9 @@ public class CPU {
 				continueCurrentExecution = false;
 				process.setProcessState(State.EXIT);
 				process.setProgramCounter(process.getProgramCounter() + 1);
+				if (process.getParentProcess() != null) {
+					process.getCommunicationPort().setChildTerminated(true);
+				}
 			} else if (splitComm[0].equals("out")) {
 				continueCurrentExecution = false;
 				output = splitComm[1] + " " + splitComm[2] + " " + splitComm[3];
@@ -70,7 +73,12 @@ public class CPU {
 				process.setProgramCounter(process.getProgramCounter() + 1);
 			} else if (splitComm[0].equals("criticalsection")) {
 				int criticalSectionTimeRemaining = Integer.parseInt(splitComm[1].trim());
-				int whichSempahoreSlot = Integer.parseInt(p.getName().substring(1)) % 10;
+				int whichSempahoreSlot;
+				if (p.getName().endsWith("c")) {
+					whichSempahoreSlot = Integer.parseInt(p.getName().substring(1, p.getName().length() - 1)) % 10;
+				} else {
+					whichSempahoreSlot = Integer.parseInt(p.getName().substring(1)) % 10;
+				}
 				process = semlist.get(whichSempahoreSlot).acquire(process);
 				output = "CRITICAL SECTION - " + whichSempahoreSlot;
 
@@ -107,8 +115,8 @@ public class CPU {
 			newChildren.add(child);
 			process.setProcessState(State.WAIT);
 			process.setProgramCounter(process.getProgramCounter() + 1);
+			continueCurrentExecution = false;
 		}
-
 	}
 
 	public ArrayList<Process> getNewChildren() {

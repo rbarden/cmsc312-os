@@ -202,10 +202,10 @@ public class OperatingSystemRunner extends JFrame {
 		if (!cpu.getNewChildren().isEmpty()) {
 			boolean processRetrieved = false;
 			for (Process p : cpu.getNewChildren()) {
-				p.setProcessState(State.NEW);
 				scheduler.addNewProcess(p);
 				scheduler.schedule(p);
 			}
+			processRetrieved = true;
 			if (processRetrieved) {
 				cpu.getNewChildren().clear();
 			}

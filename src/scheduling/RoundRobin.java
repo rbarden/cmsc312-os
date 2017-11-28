@@ -173,12 +173,14 @@ public class RoundRobin implements Scheduler {
 		for (int i = 0; i < waitingQueue.size(); i++) {
 			Process process = waitingQueue.get(i);
 			if (process.getIOTimeRemaining() == 0) {
-				// Checks if child has terminated, if not, stay here in wait
-				Port pcommport = process.getCommunicationPort();
-				if (process.getCommunicationPort() != null) {
-					if (!pcommport.isChildTerminated()) {
-						process.setProcessState(State.WAIT);
-						continue;
+				if (process.getParentProcess() == null) {
+					// Checks if child has terminated, if not, stay here in wait
+					Port pcommport = process.getCommunicationPort();
+					if (process.getCommunicationPort() != null) {
+						if (!pcommport.isChildTerminated()) {
+							process.setProcessState(State.WAIT);
+							continue;
+						}
 					}
 				}
 				process.setProcessState(State.READY);
