@@ -26,6 +26,10 @@ public class CPU {
 	private Cache cache = new Cache();
 
 	private Clock clock;
+	
+
+
+	
 
 	public CPU(Clock clock, ArrayList<Semaphore> semList) {
 		this.clock = clock;
@@ -95,6 +99,11 @@ public class CPU {
 			continueCurrentExecution = false;
 			process.setProcessState(State.READY);
 			process.setProgramCounter(process.getProgramCounter() + 1);
+		} else if (pComm.equals("fork")) {
+			Process child = new Process(process);
+			
+			newChildren.add(child);
+			process.setProcessState(State.WAIT);
 		}
 
 	}
@@ -153,4 +162,6 @@ public class CPU {
 	public Clock getClock() {
 		return clock;
 	}
+	
+	
 }

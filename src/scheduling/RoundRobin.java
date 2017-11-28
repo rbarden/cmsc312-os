@@ -178,6 +178,8 @@ public class RoundRobin implements Scheduler {
 				waitingQueue.get(i).setProcessState(State.WAIT);
 				waitingQueue.get(i).derimentIOTimeReamaining();
 			}
+			
+			
 		}
 		waitingQueue.removeAll(toRemove);
 		return toRemove;
