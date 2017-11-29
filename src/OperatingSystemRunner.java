@@ -167,7 +167,15 @@ public class OperatingSystemRunner extends JFrame {
 		if (!scheduler.getReadyQueue().isEmpty()) {
 			Process p = scheduler.getReadyProcess();
 			p.setAgingCounter(0);
-			if (scheduler.getType().equals("FCFS") && scheduler.getWaitingQueue().isEmpty()) {
+
+			boolean validWaitingQueue = true;
+			for(Process process : scheduler.getWaitingQueue()) {
+				if (process.getNumChildren() == 0) {
+					validWaitingQueue = false;
+				}
+			}
+
+			if (scheduler.getType().equals("FCFS") && validWaitingQueue) {
 				mmu.load(p, cpu);
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {

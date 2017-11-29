@@ -3,6 +3,7 @@ package scheduling;
 import hardware.Clock;
 import memory.MMU;
 import memory.MemoryManager;
+import memory.Port;
 import process.Process;
 import process.Semaphore;
 import process.State;
@@ -107,13 +108,24 @@ public class FCFS implements Scheduler {
 	public ArrayList<Process> updateWaitingProcesses(){
 		ArrayList<Process> toRemove = new ArrayList<>();
 		for (int i = 0; i < waitingQueue.size(); i++) {
-			if (waitingQueue.get(i).getIOTimeRemaining() == 0) {
-				waitingQueue.get(i).setProcessState(State.READY);
-				readyQueue.add(0, waitingQueue.get(i));
-				toRemove.add(waitingQueue.get(i));
+			Process process = waitingQueue.get(i);
+			if (process.getIOTimeRemaining() == 0) {
+				if (process.getNumChildren() > 0) {
+					// Checks if child has terminated, if not, stay here in wait
+					Port pcommport = process.getCommunicationPort();
+					if (process.getCommunicationPort() != null) {
+						if (!pcommport.isChildTerminated()) {
+							process.setProcessState(State.WAIT);
+							continue;
+						}
+					}
+				}
+				process.setProcessState(State.READY);
+				readyQueue.add(0, process);
+				toRemove.add(process);
 			} else {
-				waitingQueue.get(i).setProcessState(State.WAIT);
-				waitingQueue.get(i).derimentIOTimeReamaining();
+				process.setProcessState(State.WAIT);
+				process.derimentIOTimeReamaining();
 			}
 		}
 		waitingQueue.removeAll(toRemove);
