@@ -26,6 +26,7 @@ public class Process implements Comparable<Process>{
 		public ArrayList<String> processCommands;
 
 		public Process parentProcess;
+		private int children;
 
 		private Port communicationPort;
 
@@ -211,5 +212,17 @@ public class Process implements Comparable<Process>{
 
 		public void setCommunicationPort(Port communicationPort) {
 			this.communicationPort = communicationPort;
+		}
+
+		public int getNumChildren() {
+			return children;
+		}
+
+		public void incrementChildren() {
+			children++;
+		}
+
+		public void decrementChildren() {
+			children--;
 		}
 }

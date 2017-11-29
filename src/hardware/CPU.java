@@ -8,6 +8,7 @@ import process.Semaphore;
 import process.State;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class CPU {
@@ -63,8 +64,12 @@ public class CPU {
 				continueCurrentExecution = false;
 				process.setProcessState(State.EXIT);
 				process.setProgramCounter(process.getProgramCounter() + 1);
-				if (process.getParentProcess() != null) {
-					process.getCommunicationPort().setChildTerminated(true);
+				Process parent = process.getParentProcess();
+				if (parent != null) {
+					Port port = process.getCommunicationPort();
+					port.setChildTerminated(true);
+					port.write(new Random().nextInt());
+					parent.decrementChildren();
 				}
 			} else if (splitComm[0].equals("out")) {
 				continueCurrentExecution = false;
@@ -114,6 +119,7 @@ public class CPU {
 			child.setProgramCounter(child.getProgramCounter() + 1);
 			newChildren.add(child);
 			process.setProcessState(State.WAIT);
+			process.incrementChildren();
 			process.setProgramCounter(process.getProgramCounter() + 1);
 			continueCurrentExecution = false;
 		}
