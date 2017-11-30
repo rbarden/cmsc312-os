@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public class OperatingSystemRunner extends JFrame {
+public class Multithreading extends JFrame {
 
 	public static ArrayList<Process> finishedQueue = new ArrayList<Process>();
 	public static int timeQuantum = 25;
@@ -24,6 +24,9 @@ public class OperatingSystemRunner extends JFrame {
 	public static Clock clock;
 	public static Scheduler scheduler;
 	public static CPU cpu;
+	public static CPU cpu2;
+	public static CPU cpu3;
+	public static CPU cpu4;
 	public static MemoryManager mmu;
 	public static ArrayList<Semaphore> semaphoreList;
 
@@ -40,6 +43,10 @@ public class OperatingSystemRunner extends JFrame {
 		}
 
 		cpu = new CPU(clock, semaphoreList);
+		cpu2 = new CPU(clock, semaphoreList);
+		cpu3 = new CPU(clock, semaphoreList);
+		cpu4 = new CPU(clock, semaphoreList);
+		
 		new OperatingSystemRunner(pan);
 
 		int executionSpeedSliderVal;
@@ -74,7 +81,7 @@ public class OperatingSystemRunner extends JFrame {
 	/*
 	 * This method is initializing this class's JFrame settings
 	 */
-	public OperatingSystemRunner(JPanel p) {
+	public Multithreading(JPanel p) {
 		add(p);
 		setSize(1000, 520);
 		setLocationRelativeTo(null);
@@ -135,9 +142,13 @@ public class OperatingSystemRunner extends JFrame {
 		/*
 		 * Check the command line
 		 */
+		
+		
 		if (!pan.getInputString().isEmpty()) {
 			pan.setInputString(commandLineInterpreter(pan.getInputString()));
 		}
+		
+		
 
 		/*
 		 * Check for new processes, if the exist, add them and schedule them. Set the
@@ -164,9 +175,14 @@ public class OperatingSystemRunner extends JFrame {
 		 * The thread is allowed to sleep for each loop for a seam-less execution,
 		 * although I question if this is necessary.
 		 */
+		
+		Process p = null;
+		Process p1 = null;
+		Process p2 = null;
+		Process p3 = null;
 		int currentTimeQuantum = timeQuantum;
 		if (!scheduler.getReadyQueue().isEmpty()) {
-			Process p = scheduler.getReadyProcess();
+			p = scheduler.getReadyProcess();
 			p.setAgingCounter(0);
 
 			boolean validWaitingQueue = true;
@@ -184,19 +200,20 @@ public class OperatingSystemRunner extends JFrame {
 						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
 					}
 				});
-				executeCPU(currentTimeQuantum, p);
+				executeCPU(currentTimeQuantum, p, cpu);
 
 			} else if (scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()) {
 
 			} else {
 				mmu.load(p, cpu);
+				
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
 						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
 					}
 				});
-				executeCPU(currentTimeQuantum, p);
+				executeCPU(currentTimeQuantum, p, cpu);
 
 			}
 
@@ -204,22 +221,32 @@ public class OperatingSystemRunner extends JFrame {
 				pan.getLblCurrentProcessName().setText("");
 				pan.getOperationLabel().setText("");
 			}
-			scheduler.schedule(p);
+			
 
 		}
 		
-		if (!cpu.getNewChildren().isEmpty()) {
-			boolean processRetrieved = false;
-			for (Process p : cpu.getNewChildren()) {
-				scheduler.addNewProcess(p);
-				scheduler.schedule(p);
-			}
-			processRetrieved = true;
-			if (processRetrieved) {
-				cpu.getNewChildren().clear();
-			}
+		p1 = loadAndExecute(currentTimeQuantum, cpu2, p1);
+		p2 = loadAndExecute(currentTimeQuantum, cpu3, p2);
+		p3 = loadAndExecute(currentTimeQuantum, cpu4, p3);
 			
+		if (!(p == null)) {
+		scheduler.schedule(p);
 		}
+		if (!(p1 == null)){
+		scheduler.schedule(p1);
+		}
+		if (!(p2 == null)){
+			scheduler.schedule(p2);
+			}
+		if (!(p3 == null)){
+			scheduler.schedule(p3);
+			}
+		
+		getNewChildren(cpu);
+		getNewChildren(cpu2);
+		getNewChildren(cpu3);
+		getNewChildren(cpu4);
+		
 
 		/*
 		 * If any process was selected for removal, it is returned by the
@@ -244,6 +271,68 @@ public class OperatingSystemRunner extends JFrame {
 	}
 
 	/*
+	 * Method to get new children
+	 */
+	public static void getNewChildren(CPU cpu) {
+	if (!cpu.getNewChildren().isEmpty()) {
+		boolean processRetrieved = false;
+		for (Process pr : cpu.getNewChildren()) {
+			scheduler.addNewProcess(pr);
+			scheduler.schedule(pr);
+		}
+		processRetrieved = true;
+		if (processRetrieved) {
+			cpu.getNewChildren().clear();
+		}
+	}
+	}
+	
+	public static Process loadAndExecute(int time, CPU cpu, Process p) {
+		if (!scheduler.getReadyQueue().isEmpty()) {
+			p = scheduler.getReadyProcess();
+			p.setAgingCounter(0);
+
+			boolean validWaitingQueue = true;
+			for(Process process : scheduler.getWaitingQueue()) {
+				if (process.getNumChildren() == 0) {
+					validWaitingQueue = false;
+				}
+			}
+
+			if (scheduler.getType().equals("FCFS") && validWaitingQueue) {
+				mmu.load(p, cpu);
+				
+				try {
+					executeCPU(time, p, cpu);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			} else if (scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()) {
+
+			} else {
+				mmu.load(p, cpu);
+				
+				try {
+					executeCPU(time, p, cpu);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+			if (!scheduler.getType().equals("FCFS")) {
+				pan.getLblCurrentProcessName().setText("");
+				pan.getOperationLabel().setText("");
+			}
+			
+
+		}
+		return p;
+	}
+	/*
 	 * 
 	 * 
 	 */
@@ -263,7 +352,7 @@ public class OperatingSystemRunner extends JFrame {
 	 * incrementing the clock in Round Robin. This statement is skipped when the
 	 * FCFS scheduler is being used.
 	 */
-	public static void executeCPU(int continuousTimeQuantum, Process p) throws InterruptedException {
+	public static void executeCPU(int continuousTimeQuantum, Process p, CPU cpu) throws InterruptedException {
 		pan.getLblCurrentProcessName().setText(p.getName());
 		while (continuousTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
 			cpu.run(p);
@@ -288,6 +377,7 @@ public class OperatingSystemRunner extends JFrame {
 	 * This method is getting the input from the JPanel command line input, and
 	 * using the string in the main loop.
 	 */
+	
 	public static String commandLineInterpreter(String s) {
 		String rtnString = "";
 		if (s.contains(",")) {
@@ -329,6 +419,9 @@ public class OperatingSystemRunner extends JFrame {
 		}
 		return rtnString;
 	}
+
+	
+
 
 	/*
 	 * This method opens a JOptionPan showing all of the processes that have entered

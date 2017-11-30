@@ -26,7 +26,9 @@ public class Semaphore {
 			p.setProcessState(State.WAIT);
 			processQueue.add(p);
 		}
+		System.out.println(processQueue.size());
 		return p;
+		
 	}
 	
 	/*
