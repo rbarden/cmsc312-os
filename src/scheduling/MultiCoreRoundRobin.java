@@ -1,7 +1,9 @@
 package scheduling;
 
 import hardware.Clock;
+import memory.MMU;
 import memory.MemoryManager;
+import memory.MultiCoreMemoryManager;
 import memory.Port;
 import process.Process;
 import process.Semaphore;
@@ -9,7 +11,7 @@ import process.State;
 
 import java.util.ArrayList;
 
-public class RoundRobin implements Scheduler {
+public class MultiCoreRoundRobin implements MultiCoreScheduler {
 	/*
 	 * The queue representations
 	 */
@@ -22,7 +24,7 @@ public class RoundRobin implements Scheduler {
 	private final String type = "Round Robin";
 	
 	private Clock clock;
-	private MemoryManager mmu;
+	private MultiCoreMemoryManager mmu;
 	private ArrayList<Semaphore> semList;
 
 	
@@ -30,7 +32,7 @@ public class RoundRobin implements Scheduler {
 	/*
 	 * Constructor initializes time quantum and each of the queues
 	 */
-	public RoundRobin(int q, Clock c, ArrayList<Semaphore> s) {
+	public MultiCoreRoundRobin(int q, Clock c, ArrayList<Semaphore> s) {
 		readyQueue = new ArrayList<Process>();
 		waitingQueue = new ArrayList<Process>();
 		newQueue = new ArrayList<Process>();
@@ -239,11 +241,11 @@ public class RoundRobin implements Scheduler {
 		return type;
 	}
 	
-	public MemoryManager getMmu() {
+	public MultiCoreMemoryManager getMmu() {
 		return mmu;
 	}
 
-	public void setMMU(MemoryManager mmu) {
+	public void setMMU(MultiCoreMemoryManager mmu) {
 		this.mmu = mmu;
 	}
 

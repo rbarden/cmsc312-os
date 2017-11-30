@@ -21,6 +21,9 @@ public class Process implements Comparable<Process>{
 		public boolean hasEnteredCPU = false;
 		private int agingCounter = 0;
 		private boolean semaphoreAcquired = false;
+		private int timeQuantumCounter = 25;
+		
+
 		
 
 		public ArrayList<String> processCommands;
@@ -224,5 +227,13 @@ public class Process implements Comparable<Process>{
 
 		public void decrementChildren() {
 			children--;
+		}
+		
+		public int getTimeQuantumCounter() {
+			return timeQuantumCounter;
+		}
+
+		public void setTimeQuantumCounter(int timeQuantumCounter) {
+			this.timeQuantumCounter = timeQuantumCounter;
 		}
 }

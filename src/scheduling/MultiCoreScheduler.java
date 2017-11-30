@@ -4,10 +4,11 @@ import process.Process;
 
 import java.util.ArrayList;
 
-
+import memory.MMU;
 import memory.MemoryManager;
+import memory.MultiCoreMemoryManager;
 
-public interface Scheduler {
+public interface MultiCoreScheduler {
 	/*
 	 * Return the type of scheduler (As a String)
 	 */
@@ -48,5 +49,5 @@ public interface Scheduler {
 	/*
 	 * MMU getters and setters
 	 */
-	public void setMMU(MemoryManager m);
+	public void setMMU(MultiCoreMemoryManager m);
 }

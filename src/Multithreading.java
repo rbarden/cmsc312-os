@@ -1,13 +1,17 @@
-import hardware.CPU;
 import hardware.Clock;
-import memory.MMU;
-import memory.MMUVirtual;
-import memory.MemoryManager;
+import hardware.Core;
+import hardware.MultiCoreCPU;
+import memory.MultiCoreMMU;
+import memory.MultiCoreMMUVirtual;
+import memory.MultiCoreMemoryManager;
 import process.Process;
 import process.Semaphore;
 import process.State;
+import scheduling.MultiCoreFCFS;
+import scheduling.MultiCorePriorityScheduler;
+import scheduling.MultiCoreRoundRobin;
+import scheduling.MultiCoreScheduler;
 import scheduling.Scheduler;
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
@@ -19,16 +23,16 @@ public class Multithreading extends JFrame {
 
 	public static ArrayList<Process> finishedQueue = new ArrayList<Process>();
 	public static int timeQuantum = 25;
-
 	public static GUIPanel pan;
 	public static Clock clock;
-	public static Scheduler scheduler;
-	public static CPU cpu;
-	public static CPU cpu2;
-	public static CPU cpu3;
-	public static CPU cpu4;
-	public static MemoryManager mmu;
+	public static MultiCoreScheduler scheduler;
+	public static MultiCoreCPU cpu;
+	public static MultiCoreMemoryManager mmu;
 	public static ArrayList<Semaphore> semaphoreList;
+	static Process p = null;
+	static Process p1 = null;
+	static Process p2 = null;
+	static Process p3 = null;
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,11 +46,8 @@ public class Multithreading extends JFrame {
 			semaphoreList.add(new Semaphore());
 		}
 
-		cpu = new CPU(clock, semaphoreList);
-		cpu2 = new CPU(clock, semaphoreList);
-		cpu3 = new CPU(clock, semaphoreList);
-		cpu4 = new CPU(clock, semaphoreList);
-		
+		cpu = new MultiCoreCPU(clock, semaphoreList);
+
 		new OperatingSystemRunner(pan);
 
 		int executionSpeedSliderVal;
@@ -100,18 +101,25 @@ public class Multithreading extends JFrame {
 		 */
 		if (mmu == null) {
 			if (pan.isTxtVirtualMemorySizeIsVisible()) {
-				mmu = new MMUVirtual(Integer.parseInt(pan.getTxtVirtualMemorySize().getText()),
+				mmu = new MultiCoreMMUVirtual(Integer.parseInt(pan.getTxtVirtualMemorySize().getText()),
 						Integer.parseInt(pan.getTxtMainMemorySize().getText()));
 			} else {
-				mmu = new MMU();
+				mmu = new MultiCoreMMU();
 			}
 		}
-		
+
 		/*
 		 * Initial scheduler setup
 		 */
 		if (scheduler == null) {
-			scheduler = pan.getSchedulerIF();
+			Scheduler sched = pan.getSchedulerIF();
+			if (sched.getType().equals("FCFS")) {
+				scheduler = new MultiCoreFCFS(clock, semaphoreList);
+			} else if (sched.getType().equals("Priority Scheduler")) {
+				scheduler = new MultiCorePriorityScheduler(clock, semaphoreList);
+			} else {
+				scheduler = new MultiCoreRoundRobin(timeQuantum, clock, semaphoreList);
+			}
 			scheduler.setMMU(mmu);
 			if (scheduler.getType().equals("FCFS")) {
 				timeQuantum = 1;
@@ -123,7 +131,10 @@ public class Multithreading extends JFrame {
 		/*
 		 * Allow for continuous running
 		 */
-		cpu.setContinueCurrentExecution(true);
+		cpu.getCore1().setContinueCurrentExecution(true);
+		cpu.getCore2().setContinueCurrentExecution(true);
+		cpu.getCore3().setContinueCurrentExecution(true);
+		cpu.getCore4().setContinueCurrentExecution(true);
 		clock.incrementClock();
 		pan.setClockLbl(String.format("%06d", clock.getClock()));
 
@@ -134,7 +145,14 @@ public class Multithreading extends JFrame {
 			pan.setClockLbl("000000");
 			pan.setIsSteadyRun(false);
 			clock.setClock(0);
-			scheduler = pan.resetSchedulerIF();
+			Scheduler sched = pan.getSchedulerIF();
+			if (sched.getType().equals("FCFS")) {
+				scheduler = new MultiCoreFCFS(clock, semaphoreList);
+			} else if (sched.getType().equals("Priority Scheduler")) {
+				scheduler = new MultiCorePriorityScheduler(clock, semaphoreList);
+			} else {
+				scheduler = new MultiCoreRoundRobin(timeQuantum, clock, semaphoreList);
+			}
 			pan.setReset(false);
 
 		}
@@ -142,13 +160,10 @@ public class Multithreading extends JFrame {
 		/*
 		 * Check the command line
 		 */
-		
-		
+
 		if (!pan.getInputString().isEmpty()) {
 			pan.setInputString(commandLineInterpreter(pan.getInputString()));
 		}
-		
-		
 
 		/*
 		 * Check for new processes, if the exist, add them and schedule them. Set the
@@ -165,88 +180,63 @@ public class Multithreading extends JFrame {
 
 		updatePanelTables();
 
+		
+
+
+		if (p == null && !scheduler.getReadyQueue().isEmpty()) {
+			p = getProcess();
+			p = loadAndExecute(cpu.getCore1(), p);
+		} else {
+			p = loadAndExecute(cpu.getCore1(), p);
+
+		}
+
+		if (p1 == null && !scheduler.getReadyQueue().isEmpty()) {
+			p1 = getProcess();
+			p1 = loadAndExecute(cpu.getCore2(), p1);
+		} else {
+			p1 = loadAndExecute(cpu.getCore2(), p1);
+		}
+
+		if (p2 == null && !scheduler.getReadyQueue().isEmpty()) {
+			p2 = getProcess();
+			p2 = loadAndExecute(cpu.getCore3(), p2);
+		} else {
+			p2 = loadAndExecute(cpu.getCore3(), p2);
+		}
+
+		if (p3 == null && !scheduler.getReadyQueue().isEmpty()) {
+			p3 = getProcess();
+			p3 = loadAndExecute(cpu.getCore4(), p3);
+		} else {
+			p3 = loadAndExecute(cpu.getCore4(), p3);
+		}
+
 		/*
-		 * This begins the main 'cpu loop'; While the time quantum has not expired, and
-		 * cpu.isContinueCurrentExecution() (This is a boolean value that is switched on
-		 * the condition that the calculate time expire, or any other interrupt occurs)
-		 * is true: The CPU is run on the process. Time quantum is decremented, and the
-		 * clock incremented.
-		 * 
-		 * The thread is allowed to sleep for each loop for a seam-less execution,
-		 * although I question if this is necessary.
+		 * If the processes are not null, they get rescheduled, otherwise they will be held
+		 * to run longer. 
 		 */
-		
-		Process p = null;
-		Process p1 = null;
-		Process p2 = null;
-		Process p3 = null;
-		int currentTimeQuantum = timeQuantum;
-		if (!scheduler.getReadyQueue().isEmpty()) {
-			p = scheduler.getReadyProcess();
-			p.setAgingCounter(0);
-
-			boolean validWaitingQueue = true;
-			for(Process process : scheduler.getWaitingQueue()) {
-				if (process.getNumChildren() == 0) {
-					validWaitingQueue = false;
-				}
-			}
-
-			if (scheduler.getType().equals("FCFS") && validWaitingQueue) {
-				mmu.load(p, cpu);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
-						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
-					}
-				});
-				executeCPU(currentTimeQuantum, p, cpu);
-
-			} else if (scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()) {
-
-			} else {
-				mmu.load(p, cpu);
-				
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
-						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
-					}
-				});
-				executeCPU(currentTimeQuantum, p, cpu);
-
-			}
-
-			if (!scheduler.getType().equals("FCFS")) {
-				pan.getLblCurrentProcessName().setText("");
-				pan.getOperationLabel().setText("");
-			}
-			
-
-		}
-		
-		p1 = loadAndExecute(currentTimeQuantum, cpu2, p1);
-		p2 = loadAndExecute(currentTimeQuantum, cpu3, p2);
-		p3 = loadAndExecute(currentTimeQuantum, cpu4, p3);
-			
 		if (!(p == null)) {
-		scheduler.schedule(p);
+			schedule(p);
+			p = null;
 		}
-		if (!(p1 == null)){
-		scheduler.schedule(p1);
+		if (!(p1 == null)) {
+			schedule(p1);
+			p1 = null;
 		}
-		if (!(p2 == null)){
-			scheduler.schedule(p2);
-			}
-		if (!(p3 == null)){
-			scheduler.schedule(p3);
-			}
-		
-		getNewChildren(cpu);
-		getNewChildren(cpu2);
-		getNewChildren(cpu3);
-		getNewChildren(cpu4);
-		
+		if (!(p2 == null)) {
+			schedule(p2);
+			p2 = null;
+		}
+		if (!(p3 == null)) {
+			schedule(p3);
+			p3 = null;
+		}
+
+		getNewChildren(cpu.getCore1());
+		getNewChildren(cpu.getCore2());
+		getNewChildren(cpu.getCore3());
+		getNewChildren(cpu.getCore4());
 
 		/*
 		 * If any process was selected for removal, it is returned by the
@@ -264,36 +254,60 @@ public class Multithreading extends JFrame {
 		/*
 		 * Updating the memory and setting the memory labels in the JPanel
 		 */
-		pan.setMemoryUsedLbl("Memory Used: " + String.format("%4d/%4d", (mmu.getTotalMemorySize() - mmu.getFreeMemorySize()), mmu.getTotalMemorySize()));
+		pan.setMemoryUsedLbl("Memory Used: " + String.format("%4d/%4d",
+				(mmu.getTotalMemorySize() - mmu.getFreeMemorySize()), mmu.getTotalMemorySize()));
 		pan.setLblMemoryAvailable("Memory Available: " + String.format("%4d", mmu.getFreeMemorySize()));
 
 		updatePanelTables();
+	}
+	
+	/*
+	 * Choose, load and execute
+	 */
+	public static void chooseAndExecute(int time, Process proc) {
+		if (proc == null && !scheduler.getReadyQueue().isEmpty()) {
+			proc = getProcess();
+			proc = loadAndExecute(cpu.getCore1(), proc);
+		} else {
+			proc = loadAndExecute(cpu.getCore1(), proc);
+
+		}
+	}
+	
+	/*
+	 * Reschedule processes
+	 */
+	public static void schedule(Process proc) {
+		if (scheduler.getType().equals("Round Robin") && proc.getTimeQuantumCounter() == 0) {
+			proc.setTimeQuantumCounter(25);
+			scheduler.schedule(proc);
+		} else {
+			scheduler.schedule(proc);
+		}
 	}
 
 	/*
 	 * Method to get new children
 	 */
-	public static void getNewChildren(CPU cpu) {
-	if (!cpu.getNewChildren().isEmpty()) {
-		boolean processRetrieved = false;
-		for (Process pr : cpu.getNewChildren()) {
-			scheduler.addNewProcess(pr);
-			scheduler.schedule(pr);
-		}
-		processRetrieved = true;
-		if (processRetrieved) {
-			cpu.getNewChildren().clear();
+	public static void getNewChildren(Core core) {
+		if (!core.getNewChildren().isEmpty()) {
+			boolean processRetrieved = false;
+			for (Process pr : core.getNewChildren()) {
+				scheduler.addNewProcess(pr);
+				scheduler.schedule(pr);
+			}
+			processRetrieved = true;
+			if (processRetrieved) {
+				core.getNewChildren().clear();
+			}
 		}
 	}
-	}
-	
-	public static Process loadAndExecute(int time, CPU cpu, Process p) {
-		if (!scheduler.getReadyQueue().isEmpty()) {
-			p = scheduler.getReadyProcess();
-			p.setAgingCounter(0);
 
+	public static Process loadAndExecute(Core core, Process p) {
+
+		if (!(p == null)) {
 			boolean validWaitingQueue = true;
-			for(Process process : scheduler.getWaitingQueue()) {
+			for (Process process : scheduler.getWaitingQueue()) {
 				if (process.getNumChildren() == 0) {
 					validWaitingQueue = false;
 				}
@@ -301,9 +315,14 @@ public class Multithreading extends JFrame {
 
 			if (scheduler.getType().equals("FCFS") && validWaitingQueue) {
 				mmu.load(p, cpu);
-				
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+					}
+				});
 				try {
-					executeCPU(time, p, cpu);
+					executeCPU(p, core);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -313,9 +332,14 @@ public class Multithreading extends JFrame {
 
 			} else {
 				mmu.load(p, cpu);
-				
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+					}
+				});
 				try {
-					executeCPU(time, p, cpu);
+					executeCPU(p, core);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -327,11 +351,17 @@ public class Multithreading extends JFrame {
 				pan.getLblCurrentProcessName().setText("");
 				pan.getOperationLabel().setText("");
 			}
-			
 
 		}
 		return p;
 	}
+
+	public static Process getProcess() {
+		Process p = scheduler.getReadyProcess();
+		p.setAgingCounter(0);
+		return p;
+	}
+
 	/*
 	 * 
 	 * 
@@ -352,24 +382,14 @@ public class Multithreading extends JFrame {
 	 * incrementing the clock in Round Robin. This statement is skipped when the
 	 * FCFS scheduler is being used.
 	 */
-	public static void executeCPU(int continuousTimeQuantum, Process p, CPU cpu) throws InterruptedException {
+	public static void executeCPU(Process p, Core core) throws InterruptedException {
 		pan.getLblCurrentProcessName().setText(p.getName());
-		while (continuousTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
-			cpu.run(p);
-			continuousTimeQuantum--;
-			pan.getOperationLabel().setText(cpu.getProcessOperation());
-			if (continuousTimeQuantum > 0 && cpu.isContinueCurrentExecution()) {
-				clock.incrementClock();
-				pan.setClockLbl(String.format("%06d", clock.getClock()));
-				Thread.sleep(1000 / pan.getSliderValue());
-				scheduler.updateWaitingProcesses();
-				updatePanelTables();
-			}
+		core.run(p);
+		pan.getOperationLabel().setText(core.getProcessOperation());
 
-		}
-		if (!cpu.getOutput().isEmpty()) {
-			pan.setConsole("Output: " + cpu.getOutput() + " on clock cycle " + clock.getClock());
-			cpu.setOutput("");
+		if (!core.getOutput().isEmpty()) {
+			pan.setConsole("Output: " + core.getOutput() + " on clock cycle " + clock.getClock());
+			core.setOutput("");
 		}
 	}
 
@@ -377,7 +397,7 @@ public class Multithreading extends JFrame {
 	 * This method is getting the input from the JPanel command line input, and
 	 * using the string in the main loop.
 	 */
-	
+
 	public static String commandLineInterpreter(String s) {
 		String rtnString = "";
 		if (s.contains(",")) {
@@ -405,7 +425,14 @@ public class Multithreading extends JFrame {
 				pan.setClockLbl("000000");
 				pan.setIsSteadyRun(false);
 				clock.setClock(0);
-				scheduler = pan.resetSchedulerIF();
+				Scheduler sched = pan.getSchedulerIF();
+				if (sched.getType().equals("FCFS")) {
+					scheduler = new MultiCoreFCFS(clock, semaphoreList);
+				} else if (sched.getType().equals("Priority Scheduler")) {
+					scheduler = new MultiCorePriorityScheduler(clock, semaphoreList);
+				} else {
+					scheduler = new MultiCoreRoundRobin(timeQuantum, clock, semaphoreList);
+				}
 				finishedQueue.clear();
 				updatePanelTables();
 				pan.setConsole("");
@@ -419,9 +446,6 @@ public class Multithreading extends JFrame {
 		}
 		return rtnString;
 	}
-
-	
-
 
 	/*
 	 * This method opens a JOptionPan showing all of the processes that have entered
