@@ -41,6 +41,11 @@ public class Multithreading extends JFrame {
 		scheduler = null;
 		semaphoreList = new ArrayList<Semaphore>();
 		pan = new GUIPanel(clock, semaphoreList);
+		pan.getLblCore().setVisible(true);
+		pan.getLblCore1().setVisible(true);
+		pan.getLblCore2().setVisible(true);
+		pan.getLblCore3().setVisible(true);
+		pan.getLblCurrentCpuProcess().setVisible(false);
 
 		for (int i = 0; i < 10; i++) {
 			semaphoreList.add(new Semaphore());
@@ -180,41 +185,38 @@ public class Multithreading extends JFrame {
 
 		updatePanelTables();
 
-		
-
-
 		if (p == null && !scheduler.getReadyQueue().isEmpty()) {
 			p = getProcess();
-			p = loadAndExecute(cpu.getCore1(), p);
+			p = loadAndExecute(cpu.getCore1(), p, 1);
 		} else {
-			p = loadAndExecute(cpu.getCore1(), p);
+			p = loadAndExecute(cpu.getCore1(), p, 1);
 
 		}
 
 		if (p1 == null && !scheduler.getReadyQueue().isEmpty()) {
 			p1 = getProcess();
-			p1 = loadAndExecute(cpu.getCore2(), p1);
+			p1 = loadAndExecute(cpu.getCore2(), p1, 2);
 		} else {
-			p1 = loadAndExecute(cpu.getCore2(), p1);
+			p1 = loadAndExecute(cpu.getCore2(), p1, 2);
 		}
 
 		if (p2 == null && !scheduler.getReadyQueue().isEmpty()) {
 			p2 = getProcess();
-			p2 = loadAndExecute(cpu.getCore3(), p2);
+			p2 = loadAndExecute(cpu.getCore3(), p2, 3);
 		} else {
-			p2 = loadAndExecute(cpu.getCore3(), p2);
+			p2 = loadAndExecute(cpu.getCore3(), p2, 3);
 		}
 
 		if (p3 == null && !scheduler.getReadyQueue().isEmpty()) {
 			p3 = getProcess();
-			p3 = loadAndExecute(cpu.getCore4(), p3);
+			p3 = loadAndExecute(cpu.getCore4(), p3, 4);
 		} else {
-			p3 = loadAndExecute(cpu.getCore4(), p3);
+			p3 = loadAndExecute(cpu.getCore4(), p3, 4);
 		}
 
 		/*
-		 * If the processes are not null, they get rescheduled, otherwise they will be held
-		 * to run longer. 
+		 * If the processes are not null, they get rescheduled, otherwise they will be
+		 * held to run longer.
 		 */
 		if (!(p == null)) {
 			schedule(p);
@@ -231,6 +233,13 @@ public class Multithreading extends JFrame {
 		if (!(p3 == null)) {
 			schedule(p3);
 			p3 = null;
+		}
+
+		if (scheduler.getReadyQueue().isEmpty()) {
+			pan.getCoreProcess().setText("");
+			pan.getCoreProcess1().setText("");
+			pan.getCoreProcess2().setText("");
+			pan.getCoreProcess3().setText("");
 		}
 
 		getNewChildren(cpu.getCore1());
@@ -260,20 +269,20 @@ public class Multithreading extends JFrame {
 
 		updatePanelTables();
 	}
-	
+
 	/*
 	 * Choose, load and execute
 	 */
-	public static void chooseAndExecute(int time, Process proc) {
+	public static void chooseAndExecute(int time, Process proc, int coreNum) {
 		if (proc == null && !scheduler.getReadyQueue().isEmpty()) {
 			proc = getProcess();
-			proc = loadAndExecute(cpu.getCore1(), proc);
+			proc = loadAndExecute(cpu.getCore1(), proc, coreNum);
 		} else {
-			proc = loadAndExecute(cpu.getCore1(), proc);
+			proc = loadAndExecute(cpu.getCore1(), proc, coreNum);
 
 		}
 	}
-	
+
 	/*
 	 * Reschedule processes
 	 */
@@ -303,7 +312,7 @@ public class Multithreading extends JFrame {
 		}
 	}
 
-	public static Process loadAndExecute(Core core, Process p) {
+	public static Process loadAndExecute(Core core, Process p, int coreNum) {
 
 		if (!(p == null)) {
 			boolean validWaitingQueue = true;
@@ -314,15 +323,15 @@ public class Multithreading extends JFrame {
 			}
 
 			if (scheduler.getType().equals("FCFS") && validWaitingQueue) {
-				mmu.load(p, cpu);
+				mmu.load(p, core);
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
-						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+						pan.updateRegisterTable(core.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+						pan.updateCacheTable(core.getCache(), pan.getdTMCache(), pan.getCacheTable());
 					}
 				});
 				try {
-					executeCPU(p, core);
+					executeCPU(p, core, coreNum);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -331,15 +340,15 @@ public class Multithreading extends JFrame {
 			} else if (scheduler.getType().equals("FCFS") && !scheduler.getWaitingQueue().isEmpty()) {
 
 			} else {
-				mmu.load(p, cpu);
+				mmu.load(p, core);
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						pan.updateRegisterTable(cpu.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
-						pan.updateCacheTable(cpu.getCache(), pan.getdTMCache(), pan.getCacheTable());
+						pan.updateRegisterTable(core.getRegister(), pan.getdTMRegisters(), pan.getRegisterTable());
+						pan.updateCacheTable(core.getCache(), pan.getdTMCache(), pan.getCacheTable());
 					}
 				});
 				try {
-					executeCPU(p, core);
+					executeCPU(p, core, coreNum);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -382,13 +391,23 @@ public class Multithreading extends JFrame {
 	 * incrementing the clock in Round Robin. This statement is skipped when the
 	 * FCFS scheduler is being used.
 	 */
-	public static void executeCPU(Process p, Core core) throws InterruptedException {
-		pan.getLblCurrentProcessName().setText(p.getName());
+	public static void executeCPU(Process p, Core core, int coreNum) throws InterruptedException {
+		if (coreNum == 1) {
+			pan.getCoreProcess().setText(p.getName());
+		} else if (coreNum == 2) {
+			pan.getCoreProcess1().setText(p.getName());
+		} else if (coreNum == 3) {
+			pan.getCoreProcess2().setText(p.getName());
+		} else if (coreNum == 4) {
+			pan.getCoreProcess3().setText(p.getName());
+		}
+		// pan.getLblCurrentProcessName().setText(p.getName());
 		core.run(p);
-		pan.getOperationLabel().setText(core.getProcessOperation());
+		// pan.getOperationLabel().setText(core.getProcessOperation());
 
 		if (!core.getOutput().isEmpty()) {
-			pan.setConsole("Output: " + core.getOutput() + " on clock cycle " + clock.getClock());
+			pan.setConsole(
+					"Output: " + core.getOutput() + " from Core " + coreNum + " on clock cycle " + clock.getClock());
 			core.setOutput("");
 		}
 	}

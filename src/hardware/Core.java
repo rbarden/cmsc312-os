@@ -4,23 +4,29 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import memory.Cache;
 import memory.Port;
+import memory.Register;
 import process.Process;
 import process.Semaphore;
 import process.State;
 
 public class Core {
 
+	
+	private Register register = new Register();
+	private Cache cache = new Cache();
 	private Process process;
 	private String processOperation;
 	private String output = "";
 	private boolean continueCurrentExecution = true;
-
+	private Clock clock;
 	private ArrayList<Process> newChildren = new ArrayList<>();
 	private ArrayList<Semaphore> semlist;
 
-	public Core(ArrayList<Semaphore> semList) {
+	public Core(ArrayList<Semaphore> semList, Clock clock) {
 		this.semlist = semList;
+		this.clock = clock;
 	}
 
 	public void run(Process p) {
@@ -161,5 +167,32 @@ public class Core {
 	public void setSemlist(ArrayList<Semaphore> semlist) {
 		this.semlist = semlist;
 	}
+
+	public Register getRegister() {
+		return register;
+	}
+
+	public void setRegister(Register register) {
+		this.register = register;
+	}
+
+	public Cache getCache() {
+		return cache;
+	}
+
+	public void setCache(Cache cache) {
+		this.cache = cache;
+	}
+
+	public Clock getClock() {
+		return clock;
+	}
+
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
+	
+	
+	
 
 }

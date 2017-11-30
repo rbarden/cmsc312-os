@@ -8,7 +8,6 @@ import scheduling.FCFS;
 import scheduling.PriorityScheduler;
 import scheduling.RoundRobin;
 import scheduling.Scheduler;
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -34,7 +33,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
-import javax.swing.JScrollBar;
 
 public class GUIPanel extends JPanel {
 	/**
@@ -164,12 +162,25 @@ public class GUIPanel extends JPanel {
 	 * Allows for a textfield visibility to be changesd.
 	 */
 	public boolean txtVirtualMemorySizeIsVisible = false;
+	
+	/*
+	 * CPU Core Labels
+	 */
+	private JLabel lblCore;
+	private JLabel lblCore1;
+	private JLabel lblCore2;
+	private JLabel lblCore3;
+	
 
 	private JTextField txtMainMemorySize;
 	private JLabel lblVmSize;
 	private JLabel lblMmSize;
 
 	private ArrayList<Semaphore> semList;
+	private JLabel coreProcess;
+	private JLabel coreProcess1;
+	private JLabel coreProcess2;
+	private JLabel coreProcess3;
 
 	/*
 	 * The GUIPanel Constructor
@@ -302,6 +313,52 @@ public class GUIPanel extends JPanel {
 		operationLabel = new JLabel("");
 		operationLabel.setBounds(631, 365, 123, 16);
 		add(operationLabel);
+		
+		lblCore = new JLabel("Core 1:");
+		lblCore.setBounds(810, 351, 61, 16);
+		lblCore.setVisible(false);
+		add(lblCore);
+		
+		lblCore1 = new JLabel("Core 2:");
+		lblCore1.setBounds(810, 377, 61, 16);
+		lblCore1.setVisible(false);
+		add(lblCore1);
+		
+		lblCore2 = new JLabel("Core 3:");
+		lblCore2.setBounds(810, 405, 61, 16);
+		lblCore2.setVisible(false);
+		add(lblCore2);
+		
+		lblCore3 = new JLabel("Core 4:");
+		lblCore3.setBounds(810, 432, 61, 16);
+		lblCore3.setVisible(false);
+		add(lblCore3);
+		
+		lblVmSize = new JLabel("VM Size:");
+		lblVmSize.setBounds(480, 16, 61, 16);
+		lblVmSize.setVisible(false);
+		add(lblVmSize);
+		
+		lblMmSize = new JLabel("MM Size:");
+		lblMmSize.setBounds(645, 16, 61, 16);
+		lblMmSize.setVisible(false);
+		add(lblMmSize);
+		
+		coreProcess = new JLabel("");
+		coreProcess.setBounds(868, 351, 112, 16);
+		add(coreProcess);
+		
+		coreProcess1 = new JLabel("");
+		coreProcess1.setBounds(868, 377, 112, 16);
+		add(coreProcess1);
+		
+		coreProcess2 = new JLabel("");
+		coreProcess2.setBounds(868, 405, 112, 16);
+		add(coreProcess2);
+		
+		coreProcess3 = new JLabel("");
+		coreProcess3.setBounds(868, 432, 112, 16);
+		add(coreProcess3);
 
 		/*
 		 * Values for the drop down combo box for the scheduler.
@@ -418,7 +475,7 @@ public class GUIPanel extends JPanel {
 		registerTable.setBounds(810, 69, 170, 262);
 		registerTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		registerScrollPane = new JScrollPane(registerTable);
-		registerScrollPane.setBounds(810, 69, 170, 81);
+		registerScrollPane.setBounds(810, 69, 170, 87);
 		registerScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		add(registerScrollPane);
 		
@@ -452,15 +509,9 @@ public class GUIPanel extends JPanel {
 		add(txtVirtualMemorySize);
 		txtVirtualMemorySize.setColumns(10);
 		
-		lblVmSize = new JLabel("VM Size:");
-		lblVmSize.setBounds(480, 16, 61, 16);
-		lblVmSize.setVisible(false);
-		add(lblVmSize);
 		
-		lblMmSize = new JLabel("MM Size:");
-		lblMmSize.setBounds(645, 16, 61, 16);
-		lblMmSize.setVisible(false);
-		add(lblMmSize);
+		
+		
 		
 		
 
@@ -900,8 +951,78 @@ public class GUIPanel extends JPanel {
 	public void setdTMCache(DefaultTableModel dTMCache) {
 		this.dTMCache = dTMCache;
 	}
-	
-	
+
+	public JLabel getLblCore() {
+		return lblCore;
+	}
+
+	public void setLblCore(JLabel lblCore) {
+		this.lblCore = lblCore;
+	}
+
+	public JLabel getLblCore1() {
+		return lblCore1;
+	}
+
+	public void setLblCore1(JLabel lblCore1) {
+		this.lblCore1 = lblCore1;
+	}
+
+	public JLabel getLblCore2() {
+		return lblCore2;
+	}
+
+	public void setLblCore2(JLabel lblCore2) {
+		this.lblCore2 = lblCore2;
+	}
+
+	public JLabel getLblCore3() {
+		return lblCore3;
+	}
+
+	public void setLblCore3(JLabel lblCore3) {
+		this.lblCore3 = lblCore3;
+	}
+
+	public JLabel getCoreProcess() {
+		return coreProcess;
+	}
+
+	public void setCoreProcess(JLabel coreProcess) {
+		this.coreProcess = coreProcess;
+	}
+
+	public JLabel getCoreProcess1() {
+		return coreProcess1;
+	}
+
+	public void setCoreProcess1(JLabel coreProcess1) {
+		this.coreProcess1 = coreProcess1;
+	}
+
+	public JLabel getCoreProcess2() {
+		return coreProcess2;
+	}
+
+	public void setCoreProcess2(JLabel coreProcess2) {
+		this.coreProcess2 = coreProcess2;
+	}
+
+	public JLabel getCoreProcess3() {
+		return coreProcess3;
+	}
+
+	public void setCoreProcess3(JLabel coreProcess3) {
+		this.coreProcess3 = coreProcess3;
+	}
+
+	public JLabel getLblCurrentCpuProcess() {
+		return lblCurrentCpuProcess;
+	}
+
+	public void setLblCurrentCpuProcess(JLabel lblCurrentCpuProcess) {
+		this.lblCurrentCpuProcess = lblCurrentCpuProcess;
+	}
 	
 	
 	
