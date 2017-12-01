@@ -219,20 +219,53 @@ public class Multithreading extends JFrame {
 		 * held to run longer.
 		 */
 		if (!(p == null)) {
-			schedule(p);
-			p = null;
+			if (scheduler.getType().equals("Round Robin") && p.getTimeQuantumCounter() == 0) {
+				p.setTimeQuantumCounter(25);
+				scheduler.schedule(p);
+				p = null;
+			}else if (scheduler.getType().equals("Round Robin")){
+				//Don't Schedule
+			}else {
+				scheduler.schedule(p);
+				p = null;
+			}
 		}
 		if (!(p1 == null)) {
-			schedule(p1);
-			p1 = null;
+			if (scheduler.getType().equals("Round Robin") && p1.getTimeQuantumCounter() == 0) {
+				p1.setTimeQuantumCounter(25);
+				scheduler.schedule(p1);
+				p1 = null;
+			}else if (scheduler.getType().equals("Round Robin")){
+				//Don't Schedule
+			} else {
+				scheduler.schedule(p1);
+				p1 = null;
+			}
 		}
 		if (!(p2 == null)) {
-			schedule(p2);
-			p2 = null;
+			if (scheduler.getType().equals("Round Robin") && p2.getTimeQuantumCounter() == 0) {
+				
+				p2.setTimeQuantumCounter(25);
+				scheduler.schedule(p2);
+				p2 = null;
+			}else if (scheduler.getType().equals("Round Robin")){
+				//Don't Schedule
+			} else {
+				scheduler.schedule(p2);
+				p2 = null;
+			}
 		}
 		if (!(p3 == null)) {
-			schedule(p3);
-			p3 = null;
+			if (scheduler.getType().equals("Round Robin") && p3.getTimeQuantumCounter() == 0) {
+				p3.setTimeQuantumCounter(25);
+				scheduler.schedule(p3);
+				p3 = null;
+			}else if (scheduler.getType().equals("Round Robin")){
+				//Don't Schedule
+			} else {
+				scheduler.schedule(p3);
+				p3 = null;
+			}
 		}
 
 		if (scheduler.getReadyQueue().isEmpty()) {
@@ -269,31 +302,9 @@ public class Multithreading extends JFrame {
 
 		updatePanelTables();
 	}
+	
 
-	/*
-	 * Choose, load and execute
-	 */
-	public static void chooseAndExecute(int time, Process proc, int coreNum) {
-		if (proc == null && !scheduler.getReadyQueue().isEmpty()) {
-			proc = getProcess();
-			proc = loadAndExecute(cpu.getCore1(), proc, coreNum);
-		} else {
-			proc = loadAndExecute(cpu.getCore1(), proc, coreNum);
 
-		}
-	}
-
-	/*
-	 * Reschedule processes
-	 */
-	public static void schedule(Process proc) {
-		if (scheduler.getType().equals("Round Robin") && proc.getTimeQuantumCounter() == 0) {
-			proc.setTimeQuantumCounter(25);
-			scheduler.schedule(proc);
-		} else {
-			scheduler.schedule(proc);
-		}
-	}
 
 	/*
 	 * Method to get new children
