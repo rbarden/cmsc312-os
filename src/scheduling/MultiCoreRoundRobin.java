@@ -11,6 +11,8 @@ import process.State;
 
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 public class MultiCoreRoundRobin implements MultiCoreScheduler {
 	/*
 	 * The queue representations
@@ -182,6 +184,7 @@ public class MultiCoreRoundRobin implements MultiCoreScheduler {
 							process.setProcessState(State.WAIT);
 							continue;
 						}
+						
 					}
 				}
 				process.setProcessState(State.READY);

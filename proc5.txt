@@ -1,0 +1,49 @@
+53
+4
+io
+out from process p16825
+yield
+io
+yield
+yield
+yield
+calculate 67
+out from process p16825
+calculate 14
+calculate 9
+out from process p16825
+io
+out from process p16825
+calculate 57
+out from process p16825
+yield
+out from process p16825
+calculate 50
+io
+io
+io
+yield
+criticalsection 46
+calculate 13
+yield
+io
+out from process p16825
+io
+yield
+calculate 57
+yield
+yield
+io
+yield
+out from process p16825
+io
+out from process p16825
+io
+out from process p16825
+calculate 10
+io
+calculate 51
+out from process p16825
+io
+out from process p16825
+exe p16825

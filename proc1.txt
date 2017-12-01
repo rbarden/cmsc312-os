@@ -1,0 +1,52 @@
+96
+9
+io
+calculate 37
+io
+io
+yield
+calculate 14
+yield
+calculate 45
+yield
+out from process p16815
+yield
+fork
+io
+yield
+out from process p16815
+yield
+calculate 22
+yield
+out from process p16815
+yield
+io
+calculate 48
+yield
+fork
+calculate 42
+io
+io
+yield
+out from process p16815
+out from process p16815
+yield
+io
+yield
+yield
+io
+calculate 17
+yield
+calculate 65
+io
+yield
+yield
+io
+yield
+calculate 32
+calculate 8
+calculate 22
+yield
+calculate 69
+yield
+exe p16815

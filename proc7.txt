@@ -1,0 +1,51 @@
+94
+6
+yield
+out from process p16830
+calculate 16
+out from process p16830
+io
+io
+calculate 41
+yield
+calculate 49
+out from process p16830
+yield
+calculate 54
+calculate 37
+calculate 47
+yield
+out from process p16830
+io
+calculate 43
+calculate 41
+out from process p16830
+calculate 56
+yield
+io
+yield
+yield
+yield
+calculate 10
+out from process p16830
+calculate 15
+io
+io
+calculate 38
+calculate 75
+out from process p16830
+yield
+out from process p16830
+io
+out from process p16830
+yield
+io
+out from process p16830
+yield
+calculate 46
+out from process p16830
+out from process p16830
+io
+io
+calculate 8
+exe p16830

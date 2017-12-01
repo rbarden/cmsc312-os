@@ -1,0 +1,51 @@
+79
+8
+io
+calculate 70
+yield
+yield
+io
+calculate 48
+yield
+yield
+out from process p16754
+calculate 39
+out from process p16754
+out from process p16754
+io
+yield
+calculate 60
+io
+yield
+out from process p16754
+calculate 11
+yield
+calculate 15
+io
+yield
+io
+calculate 51
+yield
+out from process p16754
+calculate 49
+io
+yield
+yield
+out from process p16754
+yield
+out from process p16754
+io
+yield
+calculate 67
+calculate 19
+calculate 42
+calculate 50
+out from process p16754
+io
+io
+yield
+out from process p16754
+out from process p16754
+yield
+out from process p16754
+exe p16754

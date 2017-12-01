@@ -80,13 +80,13 @@ public class MultiCorePriorityScheduler implements MultiCoreScheduler {
 		 * 
 		 * This is also where the Aging is implemented; The agingCounter for each 
 		 * process is set to the clock here. If any process has remained for more than 
-		 * 2000 clock cycles, it's priority is increased. 
+		 * 300 clock cycles, it's priority is increased. 
 		 */
 		ArrayList<Process> toRemoveTerm = new ArrayList<>();
 		for (Process p : readyQueue) {
 
 			p.setAgingCounter(p.getAgingCounter() + clockdifference);
-			if (p.getAgingCounter() > 2000 && p.getPriority() < 10) {
+			if (p.getAgingCounter() > 300 && p.getPriority() < 10) {
 				p.setPriority(p.getPriority() + 1);
 				p.setAgingCounter(0);
 			}

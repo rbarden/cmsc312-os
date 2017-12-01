@@ -1,0 +1,53 @@
+59
+2
+yield
+io
+calculate 5
+io
+out from process p16818
+out from process p16818
+yield
+yield
+out from process p16818
+out from process p16818
+calculate 73
+criticalsection 19
+calculate 36
+yield
+io
+out from process p16818
+yield
+yield
+out from process p16818
+out from process p16818
+out from process p16818
+calculate 74
+criticalsection 48
+io
+fork
+calculate 66
+out from process p16818
+out from process p16818
+yield
+calculate 70
+yield
+calculate 67
+calculate 49
+yield
+out from process p16818
+calculate 24
+out from process p16818
+out from process p16818
+calculate 47
+out from process p16818
+io
+calculate 17
+yield
+yield
+yield
+io
+fork
+criticalsection 40
+out from process p16818
+yield
+exe p16818

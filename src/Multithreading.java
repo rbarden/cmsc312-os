@@ -185,6 +185,12 @@ public class Multithreading extends JFrame {
 
 		updatePanelTables();
 
+		/*
+		 * If a process is null and the ready queue has a process, then it will be
+		 * loaded to one of the cores and executed. The condition allows for a new 
+		 * process to be added to a core, else execution continues on the current 
+		 * process.
+		 */
 		if (p == null && !scheduler.getReadyQueue().isEmpty()) {
 			p = getProcess();
 			p = loadAndExecute(cpu.getCore1(), p, 1);
@@ -216,16 +222,17 @@ public class Multithreading extends JFrame {
 
 		/*
 		 * If the processes are not null, they get rescheduled, otherwise they will be
-		 * held to run longer.
+		 * held to run longer. This is what allows for the threads to stay in a given
+		 * core for up to 25 cycles.
 		 */
 		if (!(p == null)) {
 			if (scheduler.getType().equals("Round Robin") && p.getTimeQuantumCounter() == 0) {
 				p.setTimeQuantumCounter(25);
 				scheduler.schedule(p);
 				p = null;
-			}else if (scheduler.getType().equals("Round Robin")){
-				//Don't Schedule
-			}else {
+			} else if (scheduler.getType().equals("Round Robin")) {
+				// Don't Schedule
+			} else {
 				scheduler.schedule(p);
 				p = null;
 			}
@@ -235,8 +242,8 @@ public class Multithreading extends JFrame {
 				p1.setTimeQuantumCounter(25);
 				scheduler.schedule(p1);
 				p1 = null;
-			}else if (scheduler.getType().equals("Round Robin")){
-				//Don't Schedule
+			} else if (scheduler.getType().equals("Round Robin")) {
+				// Don't Schedule
 			} else {
 				scheduler.schedule(p1);
 				p1 = null;
@@ -244,12 +251,12 @@ public class Multithreading extends JFrame {
 		}
 		if (!(p2 == null)) {
 			if (scheduler.getType().equals("Round Robin") && p2.getTimeQuantumCounter() == 0) {
-				
+
 				p2.setTimeQuantumCounter(25);
 				scheduler.schedule(p2);
 				p2 = null;
-			}else if (scheduler.getType().equals("Round Robin")){
-				//Don't Schedule
+			} else if (scheduler.getType().equals("Round Robin")) {
+				// Don't Schedule
 			} else {
 				scheduler.schedule(p2);
 				p2 = null;
@@ -260,21 +267,28 @@ public class Multithreading extends JFrame {
 				p3.setTimeQuantumCounter(25);
 				scheduler.schedule(p3);
 				p3 = null;
-			}else if (scheduler.getType().equals("Round Robin")){
-				//Don't Schedule
+			} else if (scheduler.getType().equals("Round Robin")) {
+				// Don't Schedule
 			} else {
 				scheduler.schedule(p3);
 				p3 = null;
 			}
 		}
 
-		if (scheduler.getReadyQueue().isEmpty()) {
+		/*
+		 * If there are no processes in the ready or waiting queues, all of the Core
+		 * JLabels are set to empty string.
+		 */
+		if (scheduler.getReadyQueue().isEmpty() && scheduler.getWaitingQueue().isEmpty()) {
 			pan.getCoreProcess().setText("");
 			pan.getCoreProcess1().setText("");
 			pan.getCoreProcess2().setText("");
 			pan.getCoreProcess3().setText("");
 		}
 
+		/*
+		 * Retrieves any new children created by a fork in core execution
+		 */
 		getNewChildren(cpu.getCore1());
 		getNewChildren(cpu.getCore2());
 		getNewChildren(cpu.getCore3());
@@ -302,9 +316,6 @@ public class Multithreading extends JFrame {
 
 		updatePanelTables();
 	}
-	
-
-
 
 	/*
 	 * Method to get new children
@@ -323,8 +334,12 @@ public class Multithreading extends JFrame {
 		}
 	}
 
+	/*
+	 * This is where each thread is loaded to memory via the mmu and executed by
+	 * the core. This method was taken from the original OperatingSystemRunner,
+	 * some of the logic may be vestigial. 
+	 */
 	public static Process loadAndExecute(Core core, Process p, int coreNum) {
-
 		if (!(p == null)) {
 			boolean validWaitingQueue = true;
 			for (Process process : scheduler.getWaitingQueue()) {
@@ -344,7 +359,6 @@ public class Multithreading extends JFrame {
 				try {
 					executeCPU(p, core, coreNum);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -361,7 +375,6 @@ public class Multithreading extends JFrame {
 				try {
 					executeCPU(p, core, coreNum);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -376,6 +389,10 @@ public class Multithreading extends JFrame {
 		return p;
 	}
 
+	/*
+	 * Retrieves a process from the Ready Queue and sets that processes aging
+	 * counter to 0.
+	 */
 	public static Process getProcess() {
 		Process p = scheduler.getReadyProcess();
 		p.setAgingCounter(0);

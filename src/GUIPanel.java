@@ -952,6 +952,10 @@ public class GUIPanel extends JPanel {
 		this.dTMCache = dTMCache;
 	}
 
+	public JLabel getCoreProcess() {
+		return coreProcess;
+	}
+
 	public JLabel getLblCore() {
 		return lblCore;
 	}
@@ -982,10 +986,6 @@ public class GUIPanel extends JPanel {
 
 	public void setLblCore3(JLabel lblCore3) {
 		this.lblCore3 = lblCore3;
-	}
-
-	public JLabel getCoreProcess() {
-		return coreProcess;
 	}
 
 	public void setCoreProcess(JLabel coreProcess) {
@@ -1023,8 +1023,6 @@ public class GUIPanel extends JPanel {
 	public void setLblCurrentCpuProcess(JLabel lblCurrentCpuProcess) {
 		this.lblCurrentCpuProcess = lblCurrentCpuProcess;
 	}
-	
-	
 	
 	
 }

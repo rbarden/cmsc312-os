@@ -1,0 +1,53 @@
+84
+7
+out from process p16820
+out from process p16820
+out from process p16820
+yield
+io
+io
+calculate 8
+io
+fork
+calculate 73
+calculate 39
+calculate 74
+calculate 66
+io
+out from process p16820
+calculate 74
+yield
+io
+out from process p16820
+calculate 31
+calculate 22
+yield
+out from process p16820
+out from process p16820
+io
+fork
+out from process p16820
+yield
+criticalsection 6
+calculate 60
+out from process p16820
+out from process p16820
+calculate 26
+out from process p16820
+yield
+out from process p16820
+out from process p16820
+calculate 15
+yield
+yield
+io
+calculate 55
+io
+yield
+yield
+io
+io
+out from process p16820
+out from process p16820
+yield
+exe p16820
