@@ -30,6 +30,7 @@ calculate 10
 out from process p16830
 calculate 15
 io
+criticalsection 34
 io
 calculate 38
 calculate 75

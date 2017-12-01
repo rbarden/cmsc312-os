@@ -14,6 +14,7 @@ yield
 fork
 io
 yield
+criticalsection 45
 out from process p16815
 yield
 calculate 22
@@ -44,6 +45,7 @@ yield
 io
 yield
 calculate 32
+criticalsection 23
 calculate 8
 calculate 22
 yield

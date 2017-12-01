@@ -26,7 +26,8 @@ yield
 io
 calculate 51
 yield
-out from process p16754
+out from process p16720
+criticalsection 45
 calculate 49
 io
 yield

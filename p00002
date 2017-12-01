@@ -19,6 +19,7 @@ calculate 74
 yield
 io
 out from process p16820
+criticalsection 45
 calculate 31
 calculate 22
 yield

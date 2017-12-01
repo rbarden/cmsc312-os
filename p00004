@@ -15,6 +15,7 @@ out from process p16825
 io
 out from process p16825
 calculate 57
+criticalsection 17
 out from process p16825
 yield
 out from process p16825

@@ -16,6 +16,7 @@ yield
 out from process p16827
 io
 out from process p16827
+criticalsection 37
 out from process p16827
 yield
 io
