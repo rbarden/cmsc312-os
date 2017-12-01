@@ -22,8 +22,8 @@ public class Port {
         this.parentTerminated = false;
         this.data = Integer.MIN_VALUE;
 
-        parent.setCommunicationPort(this);
-        child.setCommunicationPort(this);
+        parent.setFromChildPort(this);
+        child.setToParentPort(this);
     }
 
     public boolean isChildTerminated() {

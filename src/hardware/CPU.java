@@ -66,10 +66,9 @@ public class CPU {
 				process.setProgramCounter(process.getProgramCounter() + 1);
 				Process parent = process.getParentProcess();
 				if (parent != null) {
-					Port port = process.getCommunicationPort();
+					Port port = process.getToParentPort();
 					port.setChildTerminated(true);
 					port.write(new Random().nextInt());
-					parent.decrementChildren();
 				}
 			} else if (splitComm[0].equals("out")) {
 				continueCurrentExecution = false;

@@ -11,6 +11,8 @@ import process.Process;
 import process.Semaphore;
 import process.State;
 
+import javax.swing.*;
+
 public class PriorityScheduler implements Scheduler {
 	private PriorityQueue<Process> readyQueue;
 	private ArrayList<Process> waitingQueue;
@@ -130,11 +132,14 @@ public class PriorityScheduler implements Scheduler {
 			if (process.getIOTimeRemaining() == 0) {
 				if (process.getNumChildren() > 0) {
 					// Checks if child has terminated, if not, stay here in wait
-					Port pcommport = process.getCommunicationPort();
-					if (process.getCommunicationPort() != null) {
+					Port pcommport = process.getFromChildPort();
+					if (pcommport != null) {
 						if (!pcommport.isChildTerminated()) {
 							process.setProcessState(State.WAIT);
 							continue;
+						} else {
+							process.decrementChildren();
+							JOptionPane.showMessageDialog(null, "I am " + process.getName() + ". A child just terminated with data: " + pcommport.read());
 						}
 					}
 				}

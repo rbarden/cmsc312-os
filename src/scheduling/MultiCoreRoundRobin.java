@@ -1,17 +1,14 @@
 package scheduling;
 
 import hardware.Clock;
-import memory.MMU;
-import memory.MemoryManager;
 import memory.MultiCoreMemoryManager;
 import memory.Port;
 import process.Process;
 import process.Semaphore;
 import process.State;
 
+import javax.swing.*;
 import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
 
 public class MultiCoreRoundRobin implements MultiCoreScheduler {
 	/*
@@ -178,13 +175,15 @@ public class MultiCoreRoundRobin implements MultiCoreScheduler {
 			if (process.getIOTimeRemaining() == 0) {
 				if (process.getNumChildren() > 0) {
 					// Checks if child has terminated, if not, stay here in wait
-					Port pcommport = process.getCommunicationPort();
-					if (process.getCommunicationPort() != null) {
+					Port pcommport = process.getFromChildPort();
+					if (pcommport != null) {
 						if (!pcommport.isChildTerminated()) {
 							process.setProcessState(State.WAIT);
 							continue;
+						} else {
+							process.decrementChildren();
+							JOptionPane.showMessageDialog(null, "I am " + process.getName() + ". A child just terminated with data: " + pcommport.read());
 						}
-						
 					}
 				}
 				process.setProcessState(State.READY);

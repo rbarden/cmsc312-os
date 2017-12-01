@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.PriorityQueue;
 
-import javax.swing.JOptionPane;
-
 import hardware.Clock;
 import memory.MultiCoreMemoryManager;
 import memory.Port;
 import process.Process;
 import process.Semaphore;
 import process.State;
+
+import javax.swing.*;
 
 public class MultiCorePriorityScheduler implements MultiCoreScheduler {
 	private PriorityQueue<Process> readyQueue;
@@ -132,11 +132,14 @@ public class MultiCorePriorityScheduler implements MultiCoreScheduler {
 			if (process.getIOTimeRemaining() == 0) {
 				if (process.getNumChildren() > 0) {
 					// Checks if child has terminated, if not, stay here in wait
-					Port pcommport = process.getCommunicationPort();
-					if (process.getCommunicationPort() != null) {
+					Port pcommport = process.getFromChildPort();
+					if (pcommport != null) {
 						if (!pcommport.isChildTerminated()) {
 							process.setProcessState(State.WAIT);
 							continue;
+						} else {
+							process.decrementChildren();
+							JOptionPane.showMessageDialog(null, "I am " + process.getName() + ". A child just terminated with data: " + pcommport.read());
 						}
 					}
 				}

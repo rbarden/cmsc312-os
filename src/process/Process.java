@@ -31,7 +31,8 @@ public class Process implements Comparable<Process>{
 		public Process parentProcess;
 		private int children;
 
-		private Port communicationPort;
+		private Port toParentPort;
+		private Port fromChildPort;
 
 		public Process(Process parentProcess) {
 			this.parentProcess = parentProcess;
@@ -209,12 +210,12 @@ public class Process implements Comparable<Process>{
 			return hasEnteredCPU;
 		}
 
-		public Port getCommunicationPort() {
-			return communicationPort;
+		public Port getToParentPort() {
+			return toParentPort;
 		}
 
-		public void setCommunicationPort(Port communicationPort) {
-			this.communicationPort = communicationPort;
+		public void setToParentPort(Port toParentPort) {
+			this.toParentPort = toParentPort;
 		}
 
 		public int getNumChildren() {
@@ -235,5 +236,13 @@ public class Process implements Comparable<Process>{
 
 		public void setTimeQuantumCounter(int timeQuantumCounter) {
 			this.timeQuantumCounter = timeQuantumCounter;
+		}
+
+		public Port getFromChildPort() {
+			return fromChildPort;
+		}
+
+		public void setFromChildPort(Port fromChildPort) {
+			this.fromChildPort = fromChildPort;
 		}
 }
